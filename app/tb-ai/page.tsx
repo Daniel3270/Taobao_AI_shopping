@@ -1,20 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, Copy, ExternalLink } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { copyText } from "@/lib/clipboard";
-import { type CampaignConfig, defaultCampaignConfig } from "@/lib/campaigns";
+import { type CampaignConfig, defaultCampaignConfig, loadCampaignConfig } from "@/lib/campaigns";
 import { getCampaignQuery } from "@/lib/query";
 import { trackEvent } from "@/lib/tracking";
-
-type ApiResponse = {
-  code: number;
-  data?: CampaignConfig;
-  meta?: {
-    fallback?: boolean;
-    invalidScene?: boolean;
-  };
-};
 
 type ToastState = {
   type: "success" | "error";
@@ -29,19 +21,27 @@ function isWeChatBrowser() {
   return /MicroMessenger/i.test(navigator.userAgent);
 }
 
-export default function TaobaoAiCampaignPage() {
-  const [config, setConfig] = useState<CampaignConfig>(defaultCampaignConfig);
-  const [loading, setLoading] = useState(true);
-  const [fallbackMessage, setFallbackMessage] = useState("");
+function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsString: string }) {
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
 
   const campaignQuery = useMemo(() => {
-    if (typeof window === "undefined") {
-      return {};
-    }
-    return getCampaignQuery(new URLSearchParams(window.location.search));
-  }, []);
+    return getCampaignQuery(new URLSearchParams(searchParamsString));
+  }, [searchParamsString]);
+
+  const scene = useMemo(() => {
+    return new URLSearchParams(searchParamsString).get("scene");
+  }, [searchParamsString]);
+
+  const campaignResult = useMemo(() => {
+    return loadCampaignConfig(scene);
+  }, [scene]);
+
+  const config: CampaignConfig = campaignResult.data;
+  const fallbackMessage =
+    campaignResult.meta.invalidScene || campaignResult.meta.fallback
+      ? "活动信息加载异常，已使用默认配置。"
+      : "";
 
   const track = useCallback(
     (event: Parameters<typeof trackEvent>[0]["event"], extra?: Record<string, unknown>) => {
@@ -65,65 +65,27 @@ export default function TaobaoAiCampaignPage() {
   }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const scene = params.get("scene") || defaultCampaignConfig.scene;
+    trackEvent({
+      ...campaignQuery,
+      event: "config_load_success",
+      scene: campaignQuery.scene || campaignResult.data.scene,
+      campaignId: campaignQuery.campaignId || campaignResult.data.campaignId,
+      extra: campaignResult.meta,
+    });
 
-    fetch(`/api/campaign-config?scene=${encodeURIComponent(scene)}`, {
-      cache: "no-store",
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error("Config request failed");
-        }
-        return (await response.json()) as ApiResponse;
-      })
-      .then((result) => {
-        if (result.code !== 0 || !result.data) {
-          throw new Error("Config response invalid");
-        }
-
-        setConfig(result.data);
-        trackEvent({
-          ...campaignQuery,
-          event: "config_load_success",
-          scene: campaignQuery.scene || result.data.scene,
-          campaignId: campaignQuery.campaignId || result.data.campaignId,
-          extra: result.meta,
-        });
-
-        if (result.meta?.invalidScene || result.meta?.fallback) {
-          setFallbackMessage("活动信息加载异常，已使用默认配置。");
-        }
-        if (result.meta?.invalidScene) {
-          trackEvent({
-            ...campaignQuery,
-            event: "invalid_scene",
-            scene: campaignQuery.scene || scene,
-            campaignId: campaignQuery.campaignId || result.data.campaignId,
-          });
-        }
-      })
-      .catch((error) => {
-        setConfig(defaultCampaignConfig);
-        setFallbackMessage("活动信息加载异常，已使用默认配置。");
-        trackEvent({
-          ...campaignQuery,
-          event: "config_load_fail",
-          scene,
-          campaignId: campaignQuery.campaignId || defaultCampaignConfig.campaignId,
-          extra: { message: error instanceof Error ? error.message : "unknown" },
-        });
-      })
-      .finally(() => {
-        setLoading(false);
+    if (campaignResult.meta.invalidScene) {
+      trackEvent({
+        ...campaignQuery,
+        event: "invalid_scene",
+        scene: campaignQuery.scene || scene || defaultCampaignConfig.scene,
+        campaignId: campaignQuery.campaignId || campaignResult.data.campaignId,
       });
-  }, [campaignQuery]);
+    }
+  }, [campaignQuery, campaignResult, scene]);
 
   useEffect(() => {
-    if (!loading) {
-      track("page_view", { browser: isWeChat ? "wechat" : "external" });
-    }
-  }, [isWeChat, loading, track]);
+    track("page_view", { browser: isWeChat ? "wechat" : "external" });
+  }, [isWeChat, track]);
 
   useEffect(() => {
     if (!toast) {
@@ -194,7 +156,7 @@ export default function TaobaoAiCampaignPage() {
           <div className="grid gap-2">
             <button
               type="button"
-              disabled={loading || isWeChat}
+              disabled={isWeChat}
               onClick={handleCopyAndOpen}
               className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-green px-4 text-base font-bold text-white shadow-soft active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
             >
@@ -203,7 +165,7 @@ export default function TaobaoAiCampaignPage() {
             </button>
             <button
               type="button"
-              disabled={loading || isWeChat}
+              disabled={isWeChat}
               onClick={handleCopyOnly}
               className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/35 bg-white px-4 text-sm font-semibold text-brand-green active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
             >
@@ -258,5 +220,18 @@ export default function TaobaoAiCampaignPage() {
         </div>
       ) : null}
     </main>
+  );
+}
+
+function TaobaoAiCampaignPageWithSearchParams() {
+  const searchParams = useSearchParams();
+  return <TaobaoAiCampaignPageContent searchParamsString={searchParams.toString()} />;
+}
+
+export default function TaobaoAiCampaignPage() {
+  return (
+    <Suspense fallback={<TaobaoAiCampaignPageContent searchParamsString="" />}>
+      <TaobaoAiCampaignPageWithSearchParams />
+    </Suspense>
   );
 }

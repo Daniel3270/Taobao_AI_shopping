@@ -16,6 +16,15 @@ export type CampaignConfig = {
   enabled: boolean;
 };
 
+export type CampaignConfigResponse = {
+  code: number;
+  data: CampaignConfig;
+  meta: {
+    fallback: boolean;
+    invalidScene: boolean;
+  };
+};
+
 export const DEFAULT_SCENE = "juice01";
 
 export const defaultCampaignConfig: CampaignConfig = {
@@ -58,5 +67,18 @@ export function getCampaignConfig(scene?: string | null) {
     config,
     fallback: false,
     invalidScene: false,
+  };
+}
+
+export function loadCampaignConfig(scene?: string | null): CampaignConfigResponse {
+  const { config, fallback, invalidScene } = getCampaignConfig(scene);
+
+  return {
+    code: 0,
+    data: config,
+    meta: {
+      fallback,
+      invalidScene,
+    },
   };
 }

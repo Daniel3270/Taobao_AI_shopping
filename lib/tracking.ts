@@ -17,8 +17,18 @@ type TrackPayload = CampaignQuery & {
   extra?: Record<string, unknown>;
 };
 
+export function getTrackingEndpoint() {
+  const endpoint = process.env.NEXT_PUBLIC_TRACKING_ENDPOINT?.trim();
+  return endpoint || null;
+}
+
 export function trackEvent(payload: TrackPayload) {
   if (typeof window === "undefined") {
+    return;
+  }
+
+  const endpoint = getTrackingEndpoint();
+  if (!endpoint) {
     return;
   }
 
@@ -32,11 +42,11 @@ export function trackEvent(payload: TrackPayload) {
 
   if (navigator.sendBeacon) {
     const blob = new Blob([body], { type: "application/json" });
-    navigator.sendBeacon("/api/track", blob);
+    navigator.sendBeacon(endpoint, blob);
     return;
   }
 
-  fetch("/api/track", {
+  fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body,
