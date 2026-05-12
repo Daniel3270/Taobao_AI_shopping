@@ -1,0 +1,262 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { AlertCircle, CheckCircle2, Copy, ExternalLink } from "lucide-react";
+import { copyText } from "@/lib/clipboard";
+import { type CampaignConfig, defaultCampaignConfig } from "@/lib/campaigns";
+import { getCampaignQuery } from "@/lib/query";
+import { trackEvent } from "@/lib/tracking";
+
+type ApiResponse = {
+  code: number;
+  data?: CampaignConfig;
+  meta?: {
+    fallback?: boolean;
+    invalidScene?: boolean;
+  };
+};
+
+type ToastState = {
+  type: "success" | "error";
+  text: string;
+};
+
+function isWeChatBrowser() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  return /MicroMessenger/i.test(navigator.userAgent);
+}
+
+export default function TaobaoAiCampaignPage() {
+  const [config, setConfig] = useState<CampaignConfig>(defaultCampaignConfig);
+  const [loading, setLoading] = useState(true);
+  const [fallbackMessage, setFallbackMessage] = useState("");
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const [isWeChat, setIsWeChat] = useState(false);
+
+  const campaignQuery = useMemo(() => {
+    if (typeof window === "undefined") {
+      return {};
+    }
+    return getCampaignQuery(new URLSearchParams(window.location.search));
+  }, []);
+
+  const track = useCallback(
+    (event: Parameters<typeof trackEvent>[0]["event"], extra?: Record<string, unknown>) => {
+      trackEvent({
+        ...campaignQuery,
+        event,
+        scene: campaignQuery.scene || config.scene,
+        campaignId: campaignQuery.campaignId || config.campaignId,
+        extra,
+      });
+    },
+    [campaignQuery, config.campaignId, config.scene],
+  );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsWeChat(isWeChatBrowser());
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const scene = params.get("scene") || defaultCampaignConfig.scene;
+
+    fetch(`/api/campaign-config?scene=${encodeURIComponent(scene)}`, {
+      cache: "no-store",
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error("Config request failed");
+        }
+        return (await response.json()) as ApiResponse;
+      })
+      .then((result) => {
+        if (result.code !== 0 || !result.data) {
+          throw new Error("Config response invalid");
+        }
+
+        setConfig(result.data);
+        trackEvent({
+          ...campaignQuery,
+          event: "config_load_success",
+          scene: campaignQuery.scene || result.data.scene,
+          campaignId: campaignQuery.campaignId || result.data.campaignId,
+          extra: result.meta,
+        });
+
+        if (result.meta?.invalidScene || result.meta?.fallback) {
+          setFallbackMessage("活动信息加载异常，已使用默认配置。");
+        }
+        if (result.meta?.invalidScene) {
+          trackEvent({
+            ...campaignQuery,
+            event: "invalid_scene",
+            scene: campaignQuery.scene || scene,
+            campaignId: campaignQuery.campaignId || result.data.campaignId,
+          });
+        }
+      })
+      .catch((error) => {
+        setConfig(defaultCampaignConfig);
+        setFallbackMessage("活动信息加载异常，已使用默认配置。");
+        trackEvent({
+          ...campaignQuery,
+          event: "config_load_fail",
+          scene,
+          campaignId: campaignQuery.campaignId || defaultCampaignConfig.campaignId,
+          extra: { message: error instanceof Error ? error.message : "unknown" },
+        });
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [campaignQuery]);
+
+  useEffect(() => {
+    if (!loading) {
+      track("page_view", { browser: isWeChat ? "wechat" : "external" });
+    }
+  }, [isWeChat, loading, track]);
+
+  useEffect(() => {
+    if (!toast) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => setToast(null), 2600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const copyPrompt = useCallback(async () => {
+    const success = await copyText(config.promptText);
+    if (success) {
+      setToast({ type: "success", text: "口令已复制，即将打开淘宝。" });
+      return true;
+    }
+
+    setToast({ type: "error", text: "自动复制失败，请长按口令手动复制。" });
+    return false;
+  }, [config.promptText]);
+
+  const handleCopyOnly = useCallback(async () => {
+    track("copy_click", { mode: "copy_only" });
+    const success = await copyPrompt();
+    track(success ? "copy_success" : "copy_fail", { mode: "copy_only" });
+  }, [copyPrompt, track]);
+
+  const handleCopyAndOpen = useCallback(async () => {
+    track("copy_click", { mode: "copy_and_open" });
+    const success = await copyPrompt();
+    track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
+    track("open_taobao");
+
+    window.setTimeout(async () => {
+      if (success) {
+        await copyText(config.promptText);
+      }
+
+      // Avoid the Taobao H5 "Open App" page when possible. That page may write
+      // a dps:// launch token into the clipboard while opening the app.
+      window.location.href = config.targetAppUrl || config.targetUrl;
+
+      window.setTimeout(() => {
+        if (document.visibilityState === "visible") {
+          window.location.href = config.targetUrl;
+        }
+      }, 1400);
+    }, success ? 650 : 1000);
+  }, [config.promptText, config.targetAppUrl, config.targetUrl, copyPrompt, track]);
+
+  return (
+    <main className="relative mx-auto min-h-dvh w-full max-w-[430px] overflow-hidden bg-[#dff3f6] text-brand-ink">
+      <img
+        src={config.posterImage}
+        alt={`${config.brandName}淘宝 AI 购物活动`}
+        className="absolute inset-x-0 top-0 h-auto w-full select-none"
+      />
+
+      <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#dff3f6] via-[#dff3f6]/96 to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+18px)] pt-20">
+        {fallbackMessage ? (
+          <div className="mb-3 flex items-start gap-2 rounded-lg border border-brand-citrus/45 bg-white/90 px-3 py-2 text-xs leading-5">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" aria-hidden="true" />
+            <span>{fallbackMessage}</span>
+          </div>
+        ) : null}
+
+        <section className="rounded-lg border border-white/75 bg-white/92 p-3 shadow-soft backdrop-blur">
+          <div className="grid gap-2">
+            <button
+              type="button"
+              disabled={loading || isWeChat}
+              onClick={handleCopyAndOpen}
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-green px-4 text-base font-bold text-white shadow-soft active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+            >
+              <ExternalLink className="h-5 w-5" aria-hidden="true" />
+              <span>{isWeChat ? "请用浏览器打开" : config.buttonText}</span>
+            </button>
+            <button
+              type="button"
+              disabled={loading || isWeChat}
+              onClick={handleCopyOnly}
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/35 bg-white px-4 text-sm font-semibold text-brand-green active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+            >
+              <Copy className="h-4 w-4" aria-hidden="true" />
+              <span>仅复制口令</span>
+            </button>
+          </div>
+          <p className="mt-2 text-center text-xs leading-5 text-brand-ink/60">
+            点击后将自动复制购物口令
+          </p>
+        </section>
+      </div>
+
+      {isWeChat ? (
+        <section className="fixed inset-0 z-30 mx-auto max-w-[430px] bg-white/72 text-brand-ink backdrop-blur-md">
+          <svg
+            className="absolute right-3 top-2 h-44 w-36 text-brand-green drop-shadow-lg"
+            viewBox="0 0 144 176"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M24 158C96 128 122 76 110 18"
+              stroke="currentColor"
+              strokeWidth="9"
+              strokeLinecap="round"
+            />
+            <path
+              d="M88 28L110 12L130 34"
+              stroke="currentColor"
+              strokeWidth="9"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+
+          <div className="absolute inset-x-5 top-56 rounded-lg bg-white/95 px-5 py-5 text-center text-brand-ink shadow-soft">
+            <p className="text-2xl font-bold">点右上角</p>
+            <p className="mt-2 text-lg font-semibold text-brand-green">在浏览器打开</p>
+          </div>
+        </section>
+      ) : null}
+
+      {toast ? (
+        <div className="fixed inset-x-4 bottom-5 z-40 mx-auto flex max-w-[398px] items-center gap-2 rounded-lg bg-brand-ink px-4 py-3 text-sm font-medium text-white shadow-soft">
+          {toast.type === "success" ? (
+            <CheckCircle2 className="h-5 w-5 shrink-0 text-brand-citrus" aria-hidden="true" />
+          ) : (
+            <AlertCircle className="h-5 w-5 shrink-0 text-brand-citrus" aria-hidden="true" />
+          )}
+          <span>{toast.text}</span>
+        </div>
+      ) : null}
+    </main>
+  );
+}
