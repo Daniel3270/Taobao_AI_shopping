@@ -7,6 +7,7 @@ import { copyText } from "@/lib/clipboard";
 import { type CampaignConfig, defaultCampaignConfig, loadCampaignConfig } from "@/lib/campaigns";
 import { getCampaignQuery } from "@/lib/query";
 import { trackEvent } from "@/lib/tracking";
+import { recordAplusClick, sendManualPageView } from "@/lib/umeng";
 
 type ToastState = {
   type: "success" | "error";
@@ -42,6 +43,23 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     campaignResult.meta.invalidScene || campaignResult.meta.fallback
       ? "活动信息加载异常，已使用默认配置。"
       : "";
+  const baseTrackingParams = useMemo(() => {
+    return {
+      scene: campaignQuery.scene || config.scene,
+      campaignId: campaignQuery.campaignId || config.campaignId,
+      channel: campaignQuery.channel,
+      storeId: campaignQuery.storeId,
+      sku: campaignQuery.sku,
+    };
+  }, [
+    campaignQuery.campaignId,
+    campaignQuery.channel,
+    campaignQuery.scene,
+    campaignQuery.sku,
+    campaignQuery.storeId,
+    config.campaignId,
+    config.scene,
+  ]);
 
   const track = useCallback(
     (event: Parameters<typeof trackEvent>[0]["event"], extra?: Record<string, unknown>) => {
@@ -84,8 +102,14 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [campaignQuery, campaignResult, scene]);
 
   useEffect(() => {
-    track("page_view", { browser: isWeChat ? "wechat" : "external" });
-  }, [isWeChat, track]);
+    const browser = isWeChatBrowser() ? "wechat" : "external";
+
+    sendManualPageView({
+      ...baseTrackingParams,
+      browser,
+    });
+    track("page_view", { browser });
+  }, [baseTrackingParams, track]);
 
   useEffect(() => {
     if (!toast) {
@@ -108,12 +132,14 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [config.promptText]);
 
   const handleCopyOnly = useCallback(async () => {
+    recordAplusClick("click_copy_only", baseTrackingParams);
     track("copy_click", { mode: "copy_only" });
     const success = await copyPrompt();
     track(success ? "copy_success" : "copy_fail", { mode: "copy_only" });
-  }, [copyPrompt, track]);
+  }, [baseTrackingParams, copyPrompt, track]);
 
   const handleCopyAndOpen = useCallback(async () => {
+    recordAplusClick("click_copy_and_open", baseTrackingParams);
     track("copy_click", { mode: "copy_and_open" });
     const success = await copyPrompt();
     track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
@@ -134,7 +160,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
         }
       }, 1400);
     }, success ? 650 : 1000);
-  }, [config.promptText, config.targetAppUrl, config.targetUrl, copyPrompt, track]);
+  }, [baseTrackingParams, config.promptText, config.targetAppUrl, config.targetUrl, copyPrompt, track]);
 
   return (
     <main className="relative mx-auto min-h-dvh w-full max-w-[430px] overflow-hidden bg-[#dff3f6] text-brand-ink">

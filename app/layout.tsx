@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
+import { getAplusBootstrapScript } from "@/lib/umeng";
 
 export const metadata: Metadata = {
   title: "金豆芽 × 淘宝 AI 购物",
@@ -20,7 +22,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>
+        <Script id="umeng-aplus-bootstrap" strategy="beforeInteractive">
+          {getAplusBootstrapScript()}
+        </Script>
+        {children}
+      </body>
     </html>
   );
 }

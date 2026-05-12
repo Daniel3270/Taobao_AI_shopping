@@ -19,7 +19,7 @@ http://localhost:3000/tb-ai?scene=juice01&channel=poster&campaignId=tb-ai-2026
 
 当前移动端页面以 4:5 海报作为主视觉背景：
 
-- 页面背景海报：`public/assets/jindouya-poster-4x5.png`
+- 页面背景海报：`public/assets/jindouya-poster-4x5.webp`
 
 Logo、16:9 Hero 和产品组合图仍保留在配置里，后续如果需要做更多模块可以继续使用。当前页面只展示海报背景和底部操作区。也可以修改 [lib/campaigns.ts](./lib/campaigns.ts) 里的 `posterImage` 指向其他 CDN 地址。
 
@@ -74,10 +74,10 @@ const campaignConfigs: Record<string, CampaignConfig> = {
     scene: "juice02",
     campaignId: "tb-ai-juice02-2026",
     promptText: "帮我买金豆芽新品饮品",
-    logoImage: "/assets/jindouya-logo.png",
-    heroImage: "/assets/jindouya-hero-16x9.png",
-    productImage: "/assets/jindouya-products.png",
-    posterImage: "/assets/jindouya-poster-4x5.png",
+    logoImage: "/assets/jindouya-logo.webp",
+    heroImage: "/assets/jindouya-hero-16x9.webp",
+    productImage: "/assets/jindouya-products.webp",
+    posterImage: "/assets/jindouya-poster-4x5.webp",
   },
 };
 ```
