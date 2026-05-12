@@ -1,6 +1,6 @@
 # 图片资源放置说明
 
-请把生成好的 4 张图放到本目录，并使用下面的文件名：
+当前使用 WebP 图片资源：
 
 - `jindouya-logo.webp`：Logo 透明底整理版
 - `jindouya-hero-16x9.webp`：H5 Hero 主视觉 16:9

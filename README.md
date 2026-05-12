@@ -1,6 +1,6 @@
 # 金豆芽 × 淘宝 AI 购物中转页
 
-这是一个移动端优先的 H5 活动页，用于承接二维码扫码流量。用户进入金豆芽官方活动页后，可以一键复制购物提示词，并跳转到淘宝 AI 购物页面。
+移动端优先的 H5 活动页，用于承接二维码扫码流量。用户进入金豆芽官方活动页后，可以复制购物口令，并尝试打开淘宝 AI 购物页面。
 
 ## 本地启动
 
@@ -12,8 +12,18 @@ npm run dev
 浏览器打开：
 
 ```text
-http://localhost:3000/tb-ai?scene=juice01&channel=poster&campaignId=tb-ai-2026
+http://localhost:3000/tb-ai/?scene=juice01&channel=poster&campaignId=tb-ai-2026
 ```
+
+## 当前部署形态
+
+项目已配置为纯静态导出：
+
+```ts
+output: "export"
+```
+
+因此当前版本没有内置 Next.js API Routes，可直接部署到静态托管、OSS、CDN、GitHub Pages、Nginx 静态目录等环境。
 
 ## 图片资源
 
@@ -21,46 +31,42 @@ http://localhost:3000/tb-ai?scene=juice01&channel=poster&campaignId=tb-ai-2026
 
 - 页面背景海报：`public/assets/jindouya-poster-4x5.webp`
 
-Logo、16:9 Hero 和产品组合图仍保留在配置里，后续如果需要做更多模块可以继续使用。当前页面只展示海报背景和底部操作区。也可以修改 [lib/campaigns.ts](./lib/campaigns.ts) 里的 `posterImage` 指向其他 CDN 地址。
+Logo、16:9 Hero 和产品组合图仍保留在配置里，后续如果需要做更多模块可以继续使用。也可以修改 [lib/campaigns.ts](./lib/campaigns.ts) 里的 `posterImage` 指向其他 CDN 地址。
 
 ## 主要功能
 
-- 活动页路径：`/tb-ai`
-- 配置接口：`GET /api/campaign-config?scene=juice01`
-- 埋点接口：`POST /api/track`
+- 活动页路径：`/tb-ai/`
 - 支持 `scene`、`channel`、`campaignId`、`storeId`、`sku` URL 参数
-- 点击“复制口令并打开淘宝”后，先复制提示词，再跳转到配置中的淘宝链接
-- 复制失败时显示手动复制提示，并继续允许跳转
-- 配置加载失败或 `scene` 无效时使用默认兜底配置
-- 微信内置浏览器会弹出“请用浏览器打开”指引，避免微信内无法跳转淘宝 App 的问题
+- 点击“复制口令并打开淘宝”后，先复制提示词，再优先尝试唤起淘宝 App
+- 如果淘宝 App 唤起失败，会回退到淘宝 H5 链接
+- 微信内置浏览器会显示“请用浏览器打开”指引，避免微信内无法稳定跳转淘宝 App
+- 页面隐藏提示词文本，但仍会正常复制 `promptText`
+- 友盟 A+ 埋点已接入
+- 如需自定义埋点接收地址，可配置 `NEXT_PUBLIC_TRACKING_ENDPOINT`
 
 ## 修改默认 promptText
 
 编辑 [lib/campaigns.ts](./lib/campaigns.ts)，修改 `defaultCampaignConfig.promptText`：
 
 ```ts
-promptText: "帮我买一提金豆芽金银花柚子汁",
+promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
 ```
 
-## 修改 targetUrl
+## 修改淘宝链接
 
-编辑 [lib/campaigns.ts](./lib/campaigns.ts)，修改对应活动配置里的 `targetUrl`：
+编辑 [lib/campaigns.ts](./lib/campaigns.ts)，修改：
 
 ```ts
 targetUrl: "https://pages-fast.m.taobao.com/wow/z/app/taowise/aiassistant/home?assistantOpenFrom=wb",
 ```
 
-前端页面会通过 `/api/campaign-config` 获取该地址，二维码无需直接指向淘宝链接。
-
-## 替换 Hero 图
-
-编辑 [lib/campaigns.ts](./lib/campaigns.ts)，给对应配置填入 `heroImage`：
+以及 App 唤起链接：
 
 ```ts
-heroImage: "https://cdn.example.com/jindouya/hero-juice01.jpg",
+targetAppUrl: "taobao://m.taobao.com/tbopen/index.html?h5Url=...",
 ```
 
-如果 `heroImage` 对应图片加载失败，页面会显示内置活动主视觉占位。
+`targetAppUrl` 用于优先尝试直接打开淘宝 App，`targetUrl` 用于失败后的 H5 兜底。
 
 ## 新增 scene
 
@@ -74,9 +80,6 @@ const campaignConfigs: Record<string, CampaignConfig> = {
     scene: "juice02",
     campaignId: "tb-ai-juice02-2026",
     promptText: "帮我买金豆芽新品饮品",
-    logoImage: "/assets/jindouya-logo.webp",
-    heroImage: "/assets/jindouya-hero-16x9.webp",
-    productImage: "/assets/jindouya-products.webp",
     posterImage: "/assets/jindouya-poster-4x5.webp",
   },
 };
@@ -85,20 +88,29 @@ const campaignConfigs: Record<string, CampaignConfig> = {
 访问：
 
 ```text
-http://localhost:3000/tb-ai?scene=juice02
+http://localhost:3000/tb-ai/?scene=juice02
 ```
 
-## 埋点事件
+## 埋点
 
 当前支持以下事件：
 
 - `page_view`
 - `config_load_success`
-- `config_load_fail`
 - `invalid_scene`
 - `copy_click`
 - `copy_success`
 - `copy_fail`
 - `open_taobao`
 
-开发环境中，埋点记录会输出到服务端控制台。后续接入数据库、日志平台或第三方分析服务时，可替换 [app/api/track/route.ts](./app/api/track/route.ts) 中的存储逻辑。
+友盟相关配置在 [lib/umeng.ts](./lib/umeng.ts)。
+
+如果设置 `NEXT_PUBLIC_TRACKING_ENDPOINT`，页面还会把事件发送到该外部地址；如果不设置，则只使用友盟埋点。
+
+## 构建
+
+```bash
+npm run build
+```
+
+静态产物会输出到 `out/`。

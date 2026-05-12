@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import "./globals.css";
 import { getAplusBootstrapScript } from "@/lib/umeng";
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "金豆芽 × 淘宝 AI 购物",

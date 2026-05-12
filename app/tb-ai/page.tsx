@@ -43,6 +43,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     campaignResult.meta.invalidScene || campaignResult.meta.fallback
       ? "活动信息加载异常，已使用默认配置。"
       : "";
+
   const baseTrackingParams = useMemo(() => {
     return {
       scene: campaignQuery.scene || config.scene,
