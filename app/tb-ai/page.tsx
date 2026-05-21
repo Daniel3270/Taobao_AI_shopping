@@ -185,16 +185,18 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
               type="button"
               disabled={isWeChat}
               onClick={handleCopyAndOpen}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-green px-4 text-base font-bold text-white shadow-soft active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+              className="cta-attention flex min-h-14 w-full items-center justify-center gap-2.5 rounded-lg border border-white/25 bg-[linear-gradient(135deg,#178248_0%,#1f9858_48%,#126b3d_100%)] px-5 text-[17px] font-bold text-white shadow-soft active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
             >
-              <ExternalLink className="h-5 w-5" aria-hidden="true" />
-              <span>{isWeChat ? "请用浏览器打开" : config.buttonText}</span>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/16 shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]">
+                <ExternalLink className="h-4.5 w-4.5" aria-hidden="true" />
+              </span>
+              <span className="leading-none">{isWeChat ? "请用浏览器打开" : config.buttonText}</span>
             </button>
             <button
               type="button"
               disabled={isWeChat}
               onClick={handleCopyOnly}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/35 bg-white px-4 text-sm font-semibold text-brand-green active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/35 bg-white px-4 text-[15px] font-semibold text-brand-green active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
             >
               <Copy className="h-4 w-4" aria-hidden="true" />
               <span>仅复制口令</span>

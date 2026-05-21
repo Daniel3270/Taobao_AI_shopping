@@ -33,6 +33,53 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+.cta-attention {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  animation: cta-breathe 1.55s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform, box-shadow, filter;
+}
+
+.cta-attention::after {
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: calc(0.5rem - 1px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), transparent 46%),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.18), transparent 58%);
+  content: "";
+}
+
+.cta-attention:disabled {
+  animation: none;
+  will-change: auto;
+}
+
+@keyframes cta-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 16px 38px rgba(23, 130, 72, 0.28);
+    filter: brightness(1);
+  }
+
+  50% {
+    transform: scale(1.085);
+    box-shadow: 0 24px 62px rgba(23, 130, 72, 0.42);
+    filter: brightness(1.07);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-attention {
+    animation: none;
+    will-change: auto;
+  }
+}
+
 ::selection {
   background: rgba(245, 179, 63, 0.35);
 }
