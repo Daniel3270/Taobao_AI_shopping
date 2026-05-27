@@ -171,7 +171,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
         className="absolute inset-x-0 top-0 h-auto w-full select-none"
       />
 
-      <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#dff3f6] via-[#dff3f6]/96 to-transparent px-4 pb-[calc(env(safe-area-inset-bottom)+18px)] pt-20">
+      <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-[calc(env(safe-area-inset-bottom)+12px)]">
         {fallbackMessage ? (
           <div className="mb-3 flex items-start gap-2 rounded-lg border border-brand-citrus/45 bg-white/90 px-3 py-2 text-xs leading-5">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" aria-hidden="true" />
@@ -179,8 +179,8 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
           </div>
         ) : null}
 
-        <section className="rounded-lg border border-white/75 bg-white/92 p-3 shadow-soft backdrop-blur">
-          <div className="grid gap-2">
+        <section>
+          <div className="grid gap-2.5">
             <button
               type="button"
               disabled={isWeChat}
@@ -196,13 +196,13 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
               type="button"
               disabled={isWeChat}
               onClick={handleCopyOnly}
-              className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/35 bg-white px-4 text-[15px] font-semibold text-brand-green active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/25 bg-white/78 px-4 text-sm font-semibold text-brand-green shadow-[0_5px_18px_rgba(35,53,44,0.06)] backdrop-blur-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
             >
               <Copy className="h-4 w-4" aria-hidden="true" />
               <span>仅复制口令</span>
             </button>
           </div>
-          <p className="mt-2 text-center text-xs leading-5 text-brand-ink/60">
+          <p className="mt-2 text-center text-xs leading-5 text-brand-ink/55">
             点击后将自动复制购物口令
           </p>
         </section>

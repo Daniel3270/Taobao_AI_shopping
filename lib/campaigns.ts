@@ -36,7 +36,7 @@ export const defaultCampaignConfig: CampaignConfig = {
   logoImage: "/assets/jindouya-logo.webp",
   heroImage: "/assets/jindouya-hero-16x9.webp",
   productImage: "/assets/jindouya-products.webp",
-  posterImage: "/assets/jindouya-poster-4x5.webp",
+  posterImage: "/assets/jindouya-poster-childrens-day.webp",
   promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
   targetUrl:
     "https://pages-fast.m.taobao.com/wow/z/app/taowise/aiassistant/home?assistantOpenFrom=wb",
