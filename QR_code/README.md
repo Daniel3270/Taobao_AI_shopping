@@ -21,3 +21,9 @@
 | `local/tb-ai-supermarket-local-qr.png` | 商超渠道 | `http://192.168.5.9:3000/tb-ai/?channel=supermarket` | `帮我在淘宝闪购买一提金豆芽金银花柚子汁` |
 | `local/tb-ai-kidswant-local-qr.png` | 孩子王渠道 | `http://192.168.5.9:3000/tb-ai/?channel=kidswant` | `用闪购帮我在孩子王购买金豆芽金银花柚子汁` |
 | `local/tb-ai-jiadefu-local-qr.png` | 家得福渠道 | `http://192.168.5.9:3000/tb-ai/?channel=jiadefu` | `帮我在家得福买一提金豆芽金银花柚子汁` |
+
+## 友盟统计口径
+
+- 链接参数继续使用 `channel` 区分投放渠道。
+- 页面上报到友盟时使用 `biz_channel` 作为事件参数（避免使用友盟保留字段 `channel`）。
+- 在友盟后台查看自定义事件时，请按 `biz_channel` 做筛选和分组。

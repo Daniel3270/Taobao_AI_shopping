@@ -79,6 +79,24 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     config.scene,
   ]);
 
+  const umengTrackingParams = useMemo(() => {
+    return {
+      scene: campaignQuery.scene || config.scene,
+      campaignId: campaignQuery.campaignId || config.campaignId,
+      biz_channel: campaignQuery.channel,
+      storeId: campaignQuery.storeId,
+      sku: campaignQuery.sku,
+    };
+  }, [
+    campaignQuery.campaignId,
+    campaignQuery.channel,
+    campaignQuery.scene,
+    campaignQuery.sku,
+    campaignQuery.storeId,
+    config.campaignId,
+    config.scene,
+  ]);
+
   const track = useCallback(
     (event: Parameters<typeof trackEvent>[0]["event"], extra?: Record<string, unknown>) => {
       trackEvent({
@@ -124,11 +142,11 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     const browser = isWeChatBrowser() ? "wechat" : "external";
 
     sendManualPageView({
-      ...baseTrackingParams,
+      ...umengTrackingParams,
       browser,
     });
     track("page_view", { browser });
-  }, [baseTrackingParams, track]);
+  }, [track, umengTrackingParams]);
 
   useEffect(() => {
     if (!toast) {
@@ -151,14 +169,14 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [promptText]);
 
   const handleCopyOnly = useCallback(async () => {
-    recordAplusClick("click_copy_only", baseTrackingParams);
+    recordAplusClick("click_copy_only", umengTrackingParams);
     track("copy_click", { mode: "copy_only" });
     const success = await copyPrompt();
     track(success ? "copy_success" : "copy_fail", { mode: "copy_only" });
-  }, [baseTrackingParams, copyPrompt, track]);
+  }, [copyPrompt, track, umengTrackingParams]);
 
   const handleCopyAndOpen = useCallback(async () => {
-    recordAplusClick("click_copy_and_open", baseTrackingParams);
+    recordAplusClick("click_copy_and_open", umengTrackingParams);
     track("copy_click", { mode: "copy_and_open" });
     const success = await copyPrompt();
     track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
@@ -182,7 +200,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
         }
       }, 1400);
     }, success ? 650 : 1000);
-  }, [baseTrackingParams, config.targetAppUrl, config.targetUrl, copyPrompt, isTaobao, promptText, track]);
+  }, [config.targetAppUrl, config.targetUrl, copyPrompt, isTaobao, promptText, track, umengTrackingParams]);
 
   return (
     <main className="relative mx-auto min-h-dvh w-full max-w-[430px] bg-[#dff3f6] text-brand-ink">

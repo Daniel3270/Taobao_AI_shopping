@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { getCampaignConfig, getPromptTextForChannel, loadCampaignConfig } from "../lib/campaigns";
+import { getCampaignQuery } from "../lib/query";
 import { getTrackingEndpoint } from "../lib/tracking";
 
 const originalTrackingEndpoint = process.env.NEXT_PUBLIC_TRACKING_ENDPOINT;
@@ -66,5 +67,23 @@ describe("getPromptTextForChannel", () => {
 
   it("keeps the default prompt for supermarket placements", () => {
     expect(getPromptTextForChannel("supermarket", defaultPromptText)).toBe(defaultPromptText);
+  });
+});
+
+describe("getCampaignQuery", () => {
+  it("normalizes channel for stable tracking buckets", () => {
+    const query = getCampaignQuery(new URLSearchParams("channel= KidsWant "));
+    expect(query.channel).toBe("kidswant");
+  });
+
+  it("trims tracked query values", () => {
+    const query = getCampaignQuery(
+      new URLSearchParams("scene= juice01 &campaignId= tb-ai-juice-2026 &storeId= 001 "),
+    );
+    expect(query).toMatchObject({
+      scene: "juice01",
+      campaignId: "tb-ai-juice-2026",
+      storeId: "001",
+    });
   });
 });

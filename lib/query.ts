@@ -14,13 +14,29 @@ const trackedKeys: Array<keyof CampaignQuery> = [
   "sku",
 ];
 
+function normalizeCampaignQueryValue(key: keyof CampaignQuery, value: string) {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) {
+    return null;
+  }
+
+  if (key === "channel") {
+    return trimmedValue.toLowerCase();
+  }
+
+  return trimmedValue;
+}
+
 export function getCampaignQuery(searchParams: URLSearchParams): CampaignQuery {
   const query: CampaignQuery = {};
 
   trackedKeys.forEach((key) => {
     const value = searchParams.get(key);
     if (value) {
-      query[key] = value;
+      const normalizedValue = normalizeCampaignQueryValue(key, value);
+      if (normalizedValue) {
+        query[key] = normalizedValue;
+      }
     }
   });
 
