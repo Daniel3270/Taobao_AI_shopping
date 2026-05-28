@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { getCampaignConfig, loadCampaignConfig } from "../lib/campaigns";
+import { getCampaignConfig, getPromptTextForChannel, loadCampaignConfig } from "../lib/campaigns";
 import { getTrackingEndpoint } from "../lib/tracking";
 
 const originalTrackingEndpoint = process.env.NEXT_PUBLIC_TRACKING_ENDPOINT;
@@ -46,5 +46,25 @@ describe("getCampaignConfig", () => {
         invalidScene: true,
       },
     });
+  });
+});
+
+describe("getPromptTextForChannel", () => {
+  const defaultPromptText = "帮我在淘宝闪购买一提金豆芽金银花柚子汁";
+
+  it("uses the kidswant prompt for child-and-baby channel placements", () => {
+    expect(getPromptTextForChannel("kidswant", defaultPromptText)).toBe(
+      "用闪购帮我在孩子王购买金豆芽金银花柚子汁",
+    );
+  });
+
+  it("uses the jiadefu prompt for Jiadefu placements", () => {
+    expect(getPromptTextForChannel("jiadefu", defaultPromptText)).toBe(
+      "帮我在家得福买一提金豆芽金银花柚子汁",
+    );
+  });
+
+  it("keeps the default prompt for supermarket placements", () => {
+    expect(getPromptTextForChannel("supermarket", defaultPromptText)).toBe(defaultPromptText);
   });
 });

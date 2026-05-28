@@ -52,6 +52,12 @@ Logo、16:9 Hero 和产品组合图仍保留在配置里，后续如果需要做
 promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
 ```
 
+如需按投放渠道复制专属口令，可在 `channelPromptTexts` 增加渠道配置，并在二维码链接中传入 `channel`：
+
+```text
+/tb-ai/?channel=kidswant
+```
+
 ## 修改淘宝链接
 
 编辑 [lib/campaigns.ts](./lib/campaigns.ts)，修改：

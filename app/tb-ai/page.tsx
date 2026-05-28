@@ -4,7 +4,12 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, Copy, ExternalLink } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { copyText } from "@/lib/clipboard";
-import { type CampaignConfig, defaultCampaignConfig, loadCampaignConfig } from "@/lib/campaigns";
+import {
+  type CampaignConfig,
+  defaultCampaignConfig,
+  getPromptTextForChannel,
+  loadCampaignConfig,
+} from "@/lib/campaigns";
 import { getCampaignQuery } from "@/lib/query";
 import { trackEvent } from "@/lib/tracking";
 import { recordAplusClick, sendManualPageView } from "@/lib/umeng";
@@ -22,9 +27,18 @@ function isWeChatBrowser() {
   return /MicroMessenger/i.test(navigator.userAgent);
 }
 
+function isTaobaoBrowser() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  return /AliApp\(TB\//i.test(navigator.userAgent) || /\bTaobao\b/i.test(navigator.userAgent);
+}
+
 function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsString: string }) {
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
+  const [isTaobao, setIsTaobao] = useState(false);
 
   const campaignQuery = useMemo(() => {
     return getCampaignQuery(new URLSearchParams(searchParamsString));
@@ -39,6 +53,9 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [scene]);
 
   const config: CampaignConfig = campaignResult.data;
+  const promptText = useMemo(() => {
+    return getPromptTextForChannel(campaignQuery.channel, config.promptText);
+  }, [campaignQuery.channel, config.promptText]);
   const fallbackMessage =
     campaignResult.meta.invalidScene || campaignResult.meta.fallback
       ? "活动信息加载异常，已使用默认配置。"
@@ -78,6 +95,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setIsWeChat(isWeChatBrowser());
+      setIsTaobao(isTaobaoBrowser());
     }, 0);
 
     return () => window.clearTimeout(timer);
@@ -122,7 +140,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [toast]);
 
   const copyPrompt = useCallback(async () => {
-    const success = await copyText(config.promptText);
+    const success = await copyText(promptText);
     if (success) {
       setToast({ type: "success", text: "口令已复制，即将打开淘宝。" });
       return true;
@@ -130,7 +148,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
 
     setToast({ type: "error", text: "自动复制失败，请长按口令手动复制。" });
     return false;
-  }, [config.promptText]);
+  }, [promptText]);
 
   const handleCopyOnly = useCallback(async () => {
     recordAplusClick("click_copy_only", baseTrackingParams);
@@ -144,15 +162,18 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     track("copy_click", { mode: "copy_and_open" });
     const success = await copyPrompt();
     track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
+
+    if (isTaobao) {
+      return;
+    }
+
     track("open_taobao");
 
     window.setTimeout(async () => {
       if (success) {
-        await copyText(config.promptText);
+        await copyText(promptText);
       }
 
-      // Avoid the Taobao H5 "Open App" page when possible. That page may write
-      // a dps:// launch token into the clipboard while opening the app.
       window.location.href = config.targetAppUrl || config.targetUrl;
 
       window.setTimeout(() => {
@@ -161,51 +182,55 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
         }
       }, 1400);
     }, success ? 650 : 1000);
-  }, [baseTrackingParams, config.promptText, config.targetAppUrl, config.targetUrl, copyPrompt, track]);
+  }, [baseTrackingParams, config.targetAppUrl, config.targetUrl, copyPrompt, isTaobao, promptText, track]);
 
   return (
-    <main className="relative mx-auto min-h-dvh w-full max-w-[430px] overflow-hidden bg-[#dff3f6] text-brand-ink">
-      <img
-        src={config.posterImage}
-        alt={`${config.brandName}淘宝 AI 购物活动`}
-        className="absolute inset-x-0 top-0 h-auto w-full select-none"
-      />
+    <main className="relative mx-auto min-h-dvh w-full max-w-[430px] bg-[#dff3f6] text-brand-ink">
+      <div className="relative aspect-[941/1672] w-full overflow-hidden">
+        <img
+          src={config.posterImage}
+          alt={`${config.brandName}淘宝 AI 购物活动`}
+          className="absolute inset-x-0 top-0 h-auto w-full select-none"
+        />
 
-      <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-[calc(env(safe-area-inset-bottom)+12px)]">
-        {fallbackMessage ? (
-          <div className="mb-3 flex items-start gap-2 rounded-lg border border-brand-citrus/45 bg-white/90 px-3 py-2 text-xs leading-5">
-            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" aria-hidden="true" />
-            <span>{fallbackMessage}</span>
-          </div>
-        ) : null}
+        <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+          {fallbackMessage ? (
+            <div className="mb-3 flex items-start gap-2 rounded-lg border border-brand-citrus/45 bg-white/90 px-3 py-2 text-xs leading-5">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" aria-hidden="true" />
+              <span>{fallbackMessage}</span>
+            </div>
+          ) : null}
 
-        <section>
-          <div className="grid gap-2.5">
-            <button
-              type="button"
-              disabled={isWeChat}
-              onClick={handleCopyAndOpen}
-              className="cta-attention flex min-h-14 w-full items-center justify-center gap-2.5 rounded-lg border border-white/25 bg-[linear-gradient(135deg,#178248_0%,#1f9858_48%,#126b3d_100%)] px-5 text-[17px] font-bold text-white shadow-soft active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
-            >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/16 shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]">
-                <ExternalLink className="h-4.5 w-4.5" aria-hidden="true" />
-              </span>
-              <span className="leading-none">{isWeChat ? "请用浏览器打开" : config.buttonText}</span>
-            </button>
-            <button
-              type="button"
-              disabled={isWeChat}
-              onClick={handleCopyOnly}
-              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/25 bg-white/78 px-4 text-sm font-semibold text-brand-green shadow-[0_5px_18px_rgba(35,53,44,0.06)] backdrop-blur-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
-            >
-              <Copy className="h-4 w-4" aria-hidden="true" />
-              <span>仅复制口令</span>
-            </button>
-          </div>
-          <p className="mt-2 text-center text-xs leading-5 text-brand-ink/55">
-            点击后将自动复制购物口令
-          </p>
-        </section>
+          <section>
+            <div className="grid gap-2.5">
+              <button
+                type="button"
+                disabled={isWeChat}
+                onClick={handleCopyAndOpen}
+                className="cta-attention flex min-h-14 w-full items-center justify-center gap-2.5 rounded-lg border border-white/25 bg-[linear-gradient(135deg,#178248_0%,#1f9858_48%,#126b3d_100%)] px-5 text-[17px] font-bold text-white shadow-soft active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/16 shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]">
+                  <ExternalLink className="h-4.5 w-4.5" aria-hidden="true" />
+                </span>
+                <span className="leading-none">
+                  {isWeChat ? "请用浏览器打开" : isTaobao ? "复制购物口令" : config.buttonText}
+                </span>
+              </button>
+              <button
+                type="button"
+                disabled={isWeChat}
+                onClick={handleCopyOnly}
+                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/25 bg-white/78 px-4 text-sm font-semibold text-brand-green shadow-[0_5px_18px_rgba(35,53,44,0.06)] backdrop-blur-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
+              >
+                <Copy className="h-4 w-4" aria-hidden="true" />
+                <span>仅复制口令</span>
+              </button>
+            </div>
+            <p className="mt-2 text-center text-xs leading-5 text-brand-ink/55">
+              点击后将自动复制购物口令
+            </p>
+          </section>
+        </div>
       </div>
 
       {isWeChat ? (
