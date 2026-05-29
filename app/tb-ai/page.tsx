@@ -61,24 +61,6 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
       ? "活动信息加载异常，已使用默认配置。"
       : "";
 
-  const baseTrackingParams = useMemo(() => {
-    return {
-      scene: campaignQuery.scene || config.scene,
-      campaignId: campaignQuery.campaignId || config.campaignId,
-      channel: campaignQuery.channel,
-      storeId: campaignQuery.storeId,
-      sku: campaignQuery.sku,
-    };
-  }, [
-    campaignQuery.campaignId,
-    campaignQuery.channel,
-    campaignQuery.scene,
-    campaignQuery.sku,
-    campaignQuery.storeId,
-    config.campaignId,
-    config.scene,
-  ]);
-
   const umengTrackingParams = useMemo(() => {
     return {
       scene: campaignQuery.scene || config.scene,

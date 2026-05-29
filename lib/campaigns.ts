@@ -53,7 +53,8 @@ const campaignConfigs: Record<string, CampaignConfig> = {
 
 const channelPromptTexts: Record<string, string> = {
   jiadefu: "帮我在家得福买一提金豆芽金银花柚子汁",
-  kidswant: "用闪购帮我在孩子王购买金豆芽金银花柚子汁",
+  kidswant: "用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml*13袋",
+  metro: "用闪购帮我在麦德龙购买金豆芽金银花柚子汁",
 };
 
 export function getPromptTextForChannel(channel: string | undefined, fallbackPromptText: string) {

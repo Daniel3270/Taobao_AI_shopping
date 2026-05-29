@@ -9,8 +9,9 @@
 | 文件 | 渠道 | 正式链接 | 复制口令 |
 | --- | --- | --- | --- |
 | `production/tb-ai-supermarket-production-qr.png` | 商超渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=supermarket` | `帮我在淘宝闪购买一提金豆芽金银花柚子汁` |
-| `production/tb-ai-kidswant-production-qr.png` | 孩子王渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=kidswant` | `用闪购帮我在孩子王购买金豆芽金银花柚子汁` |
+| `production/tb-ai-kidswant-production-qr.png` | 孩子王渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=kidswant` | `用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml*13袋` |
 | `production/tb-ai-jiadefu-production-qr.png` | 家得福渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=jiadefu` | `帮我在家得福买一提金豆芽金银花柚子汁` |
+| `production/tb-ai-metro-production-qr.png` | 麦德龙渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=metro` | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
 
 ## 本地测试二维码
 
@@ -19,8 +20,9 @@
 | 文件 | 渠道 | 本地链接 | 复制口令 |
 | --- | --- | --- | --- |
 | `local/tb-ai-supermarket-local-qr.png` | 商超渠道 | `http://192.168.5.9:3000/tb-ai/?channel=supermarket` | `帮我在淘宝闪购买一提金豆芽金银花柚子汁` |
-| `local/tb-ai-kidswant-local-qr.png` | 孩子王渠道 | `http://192.168.5.9:3000/tb-ai/?channel=kidswant` | `用闪购帮我在孩子王购买金豆芽金银花柚子汁` |
+| `local/tb-ai-kidswant-local-qr.png` | 孩子王渠道 | `http://192.168.5.9:3000/tb-ai/?channel=kidswant` | `用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml*13袋` |
 | `local/tb-ai-jiadefu-local-qr.png` | 家得福渠道 | `http://192.168.5.9:3000/tb-ai/?channel=jiadefu` | `帮我在家得福买一提金豆芽金银花柚子汁` |
+| `local/tb-ai-metro-local-qr.png` | 麦德龙渠道 | `http://192.168.5.9:3000/tb-ai/?channel=metro` | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
 
 ## 友盟统计口径
 
