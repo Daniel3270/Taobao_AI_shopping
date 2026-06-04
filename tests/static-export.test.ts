@@ -55,13 +55,13 @@ describe("getPromptTextForChannel", () => {
 
   it("uses the kidswant prompt for child-and-baby channel placements", () => {
     expect(getPromptTextForChannel("kidswant", defaultPromptText)).toBe(
-      "用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml*13袋",
+      "用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml",
     );
   });
 
   it("uses the jiadefu prompt for Jiadefu placements", () => {
     expect(getPromptTextForChannel("jiadefu", defaultPromptText)).toBe(
-      "帮我在家得福买一提金豆芽金银花柚子汁",
+      "用闪购帮我在家得福购买【不怕上火】金豆芽金银花柚子汁100ml",
     );
   });
 

@@ -29,7 +29,7 @@ output: "export"
 
 当前移动端页面以 4:5 海报作为主视觉背景：
 
-- 页面背景海报：`public/assets/jindouya-poster-childrens-day.webp`
+- 页面背景海报：`public/assets/jindouya-poster-summer.webp`
 
 Logo、16:9 Hero 和产品组合图仍保留在配置里，后续如果需要做更多模块可以继续使用。也可以修改 [lib/campaigns.ts](./lib/campaigns.ts) 里的 `posterImage` 指向其他 CDN 地址。
 
@@ -86,7 +86,7 @@ const campaignConfigs: Record<string, CampaignConfig> = {
     scene: "juice02",
     campaignId: "tb-ai-juice02-2026",
     promptText: "帮我买金豆芽新品饮品",
-    posterImage: "/assets/jindouya-poster-childrens-day.webp",
+    posterImage: "/assets/jindouya-poster-summer.webp",
   },
 };
 ```
