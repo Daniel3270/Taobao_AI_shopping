@@ -74,6 +74,12 @@ describe("getPromptTextForChannel", () => {
       "用闪购帮我在麦德龙购买金豆芽金银花柚子汁",
     );
   });
+
+  it("uses the yinzuo prompt for Yinzuo supermarket placements", () => {
+    expect(getPromptTextForChannel("yinzuo", defaultPromptText)).toBe(
+      "用闪购帮我在银座超市和谐广场店买金豆芽金银花柚子汁",
+    );
+  });
 });
 
 describe("getCampaignQuery", () => {
