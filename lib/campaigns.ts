@@ -55,7 +55,7 @@ const channelPromptTexts: Record<string, string> = {
   jiadefu: "用闪购帮我在家得福购买【不怕上火】金豆芽金银花柚子汁100ml",
   kidswant: "用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml",
   metro: "用闪购帮我在麦德龙购买金豆芽金银花柚子汁",
-  yinzuo: "用闪购帮我在银座超市和谐广场店买金豆芽金银花柚子汁",
+  yinzuo: "用闪购帮我在银座商城(济南和谐广场店)买金豆芽金银花苹果汁礼盒装100ml*13/提",
 };
 
 export function getPromptTextForChannel(channel: string | undefined, fallbackPromptText: string) {

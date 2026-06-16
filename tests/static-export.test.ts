@@ -77,7 +77,7 @@ describe("getPromptTextForChannel", () => {
 
   it("uses the yinzuo prompt for Yinzuo supermarket placements", () => {
     expect(getPromptTextForChannel("yinzuo", defaultPromptText)).toBe(
-      "用闪购帮我在银座超市和谐广场店买金豆芽金银花柚子汁",
+      "用闪购帮我在银座商城(济南和谐广场店)买金豆芽金银花苹果汁礼盒装100ml*13/提",
     );
   });
 });
