@@ -65,8 +65,10 @@ describe("getPromptTextForChannel", () => {
     );
   });
 
-  it("keeps the default prompt for supermarket placements", () => {
-    expect(getPromptTextForChannel("supermarket", defaultPromptText)).toBe(defaultPromptText);
+  it("uses the huangshang prompt for Huangshang supermarket placements", () => {
+    expect(getPromptTextForChannel("huangshang", defaultPromptText)).toBe(
+      "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
+    );
   });
 
   it("uses the metro prompt for Metro placements", () => {
