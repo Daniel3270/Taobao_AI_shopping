@@ -77,9 +77,15 @@ describe("getPromptTextForChannel", () => {
     );
   });
 
+  it("uses the yingbeier prompt for Yingbeier placements", () => {
+    expect(getPromptTextForChannel("yingbeier", defaultPromptText)).toBe(
+      "帮我用闪购在婴贝儿（领秀城贵和店）购买金豆芽金银花柚子汁100ml*12+1袋 宝宝饮品礼盒",
+    );
+  });
+
   it("uses the yinzuo prompt for Yinzuo supermarket placements", () => {
     expect(getPromptTextForChannel("yinzuo", defaultPromptText)).toBe(
-      "用闪购帮我在银座商城(济南和谐广场店)买金豆芽金银花苹果汁礼盒装100ml*13/提",
+      "用闪购帮我在银座商城(济南和谐广场店)买金豆芽金银花苹果汁礼盒装100ml",
     );
   });
 });
