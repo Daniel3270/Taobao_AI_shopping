@@ -79,7 +79,7 @@ describe("getPromptTextForChannel", () => {
 
   it("uses the yingbeier prompt for Yingbeier placements", () => {
     expect(getPromptTextForChannel("yingbeier", defaultPromptText)).toBe(
-      "帮我用闪购在婴贝儿（领秀城贵和店）购买金豆芽金银花柚子汁100ml*12+1袋 宝宝饮品礼盒",
+      "帮我用闪购在婴贝儿（领秀城贵和店）购买金豆芽金银花柚子汁宝宝饮品礼盒",
     );
   });
 

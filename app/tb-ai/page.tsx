@@ -186,14 +186,14 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
 
   return (
     <main className="relative mx-auto min-h-dvh w-full max-w-[430px] bg-[#dff3f6] text-brand-ink">
-      <div className="relative aspect-[941/1672] w-full overflow-hidden">
+      <div className="relative aspect-[941/1672] min-h-dvh w-full overflow-hidden">
         <img
           src={config.posterImage}
           alt={`${config.brandName}淘宝 AI 购物活动`}
-          className="absolute inset-x-0 top-0 h-auto w-full select-none"
+          className="absolute inset-0 h-full w-full select-none object-cover"
         />
 
-        <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-[calc(env(safe-area-inset-bottom)+12px)]">
+        <div className="absolute inset-x-0 bottom-0 z-10 px-6 pb-[calc(env(safe-area-inset-bottom)+54px)]">
           {fallbackMessage ? (
             <div className="mb-3 flex items-start gap-2 rounded-lg border border-brand-citrus/45 bg-white/90 px-3 py-2 text-xs leading-5">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-brand-gold" aria-hidden="true" />
@@ -226,9 +226,6 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
                 <span>仅复制口令</span>
               </button>
             </div>
-            <p className="mt-2 text-center text-xs leading-5 text-brand-ink/55">
-              点击后将自动复制购物口令
-            </p>
           </section>
         </div>
       </div>
