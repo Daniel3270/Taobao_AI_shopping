@@ -61,14 +61,25 @@ describe("getPromptTextForChannel", () => {
 
   it("uses the jiadefu prompt for Jiadefu placements", () => {
     expect(getPromptTextForChannel("jiadefu", defaultPromptText)).toBe(
-      "用闪购帮我在家得福购买【不怕上火】金豆芽金银花柚子汁100ml",
+      "帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml*13礼盒",
     );
   });
 
   it("uses the huangshang prompt for Huangshang supermarket placements", () => {
     expect(getPromptTextForChannel("huangshang", defaultPromptText)).toBe(
-      "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
+      "帮我在黄商超市淘宝闪购买一提金豆芽金银花柚子汁礼盒装100ml*(12袋+1袋）",
     );
+  });
+
+  it.each([
+    ["jiajiali", "帮我在家家利超市淘宝闪购买一提金豆芽金银花柚子果汁饮料100ml*13"],
+    ["miaoduoke", "帮我在妙多客超市淘宝闪购买一提金豆芽金银花柚子汁100ml*13礼盒"],
+    ["yasi", "帮我在雅斯超市淘宝闪购买一提金豆芽金银花柚子汁复合果汁饮品100ml*(12袋+1袋）/箱"],
+    ["huayubaijia", "帮我在华豫佰佳超市淘宝闪购买一提金豆芽金银花柚子汁100ml*13袋/提"],
+    ["xingqin", "帮我在兴勤超市淘宝闪购买一提金豆芽金银花柚子汁100ml*13袋"],
+    ["rtmart", "帮我在大润发淘宝闪购买一提金豆芽金银花柚子汁100ml*13袋/盒"],
+  ])("uses the %s prompt for channel placements", (channel, promptText) => {
+    expect(getPromptTextForChannel(channel, defaultPromptText)).toBe(promptText);
   });
 
   it("uses the metro prompt for Metro placements", () => {
