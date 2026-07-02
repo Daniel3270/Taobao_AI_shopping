@@ -53,6 +53,8 @@ const campaignConfigs: Record<string, CampaignConfig> = {
 
 const channelPromptTexts: Record<string, string> = {
   huangshang: "帮我在黄商超市淘宝闪购买一提金豆芽金银花柚子汁礼盒装100ml*(12袋+1袋）",
+  changshen: "帮我在长申超市淘宝闪购买一提金豆芽金银花柚子汁100ml*13袋/提",
+  dazhangshengdemei: "帮我在大张盛德美淘宝闪购买一提金豆芽金银花柚子汁100ml*13袋/提",
   jiadefu: "帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml*13礼盒",
   jiajiali: "帮我在家家利超市淘宝闪购买一提金豆芽金银花柚子果汁饮料100ml*13",
   kidswant: "用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml",
