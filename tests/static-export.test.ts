@@ -72,14 +72,14 @@ describe("getPromptTextForChannel", () => {
   });
 
   it.each([
-    ["changshen", "帮我在长申超市淘宝闪购买一提金豆芽金银花柚子汁100ml"],
-    ["dazhangshengdemei", "帮我在大张盛德美淘宝闪购买一提金豆芽金银花柚子汁100ml"],
-    ["jiajiali", "帮我在家家利超市淘宝闪购买一提金豆芽金银花柚子果汁饮料100ml"],
-    ["miaoduoke", "帮我在淘宝闪购妙多客超市买一提金豆芽金银花柚子汁"],
-    ["yasi", "帮我在雅斯超市淘宝闪购买一提金豆芽金银花柚子汁复合果汁饮品100ml"],
-    ["huayubaijia", "帮我在华豫佰佳超市淘宝闪购买一提金豆芽金银花柚子汁100ml"],
-    ["xingqin", "帮我在兴勤超市淘宝闪购买一提金豆芽金银花柚子汁100ml"],
-    ["rtmart", "帮我在大润发淘宝闪购买一提金豆芽金银花柚子汁100ml"],
+    ["changshen", "帮我用淘宝闪购在长申超市买一提金豆芽金银花柚子汁100ml"],
+    ["dazhangshengdemei", "帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml"],
+    ["jiajiali", "帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml"],
+    ["miaoduoke", "帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml"],
+    ["yasi", "帮我用淘宝闪购在雅斯超市买一提金豆芽金银花柚子汁复合果汁饮品100ml"],
+    ["huayubaijia", "帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml"],
+    ["xingqin", "帮我用淘宝闪购在兴勤超市买一提金豆芽金银花柚子汁"],
+    ["rtmart", "帮我用淘宝闪购在大润发买一提金豆芽金银花柚子汁"],
   ])("uses the %s prompt for channel placements", (channel, promptText) => {
     expect(getPromptTextForChannel(channel, defaultPromptText)).toBe(promptText);
   });
