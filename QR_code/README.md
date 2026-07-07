@@ -13,6 +13,7 @@
 | `production/tb-ai-dazhangshengdemei-production-qr.png` | 大张盛德美渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=dazhangshengdemei` | `帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml` |
 | `production/tb-ai-jiadefu-production-qr.png` | 家得福渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=jiadefu` | `帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml` |
 | `production/tb-ai-jiajiali-production-qr.png` | 家家利超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=jiajiali` | `帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml` |
+| `production/tb-ai-jiarong-production-qr.png` | 嘉荣渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=jiarong` | `帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁` |
 | `production/tb-ai-kidswant-production-qr.png` | 孩子王渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=kidswant` | `用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml` |
 | `production/tb-ai-huayubaijia-production-qr.png` | 华豫佰佳超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huayubaijia` | `帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml` |
 | `production/tb-ai-metro-production-qr.png` | 麦德龙渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=metro` | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
@@ -34,6 +35,7 @@
 | `local/tb-ai-dazhangshengdemei-local-qr.png` | 大张盛德美渠道 | `http://192.168.5.9:3000/tb-ai/?channel=dazhangshengdemei` | `帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml` |
 | `local/tb-ai-jiadefu-local-qr.png` | 家得福渠道 | `http://192.168.5.9:3000/tb-ai/?channel=jiadefu` | `帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml` |
 | `local/tb-ai-jiajiali-local-qr.png` | 家家利超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=jiajiali` | `帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml` |
+| `local/tb-ai-jiarong-local-qr.png` | 嘉荣渠道 | `http://192.168.5.9:3000/tb-ai/?channel=jiarong` | `帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁` |
 | `local/tb-ai-kidswant-local-qr.png` | 孩子王渠道 | `http://192.168.5.9:3000/tb-ai/?channel=kidswant` | `用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml` |
 | `local/tb-ai-huayubaijia-local-qr.png` | 华豫佰佳超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=huayubaijia` | `帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml` |
 | `local/tb-ai-metro-local-qr.png` | 麦德龙渠道 | `http://192.168.5.9:3000/tb-ai/?channel=metro` | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
