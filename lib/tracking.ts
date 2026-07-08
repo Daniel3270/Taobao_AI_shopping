@@ -5,6 +5,7 @@ export type TrackingEvent =
   | "copy_click"
   | "copy_success"
   | "copy_fail"
+  | "open_alipay"
   | "open_taobao"
   | "config_load_success"
   | "config_load_fail"

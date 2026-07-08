@@ -112,12 +112,14 @@ describe("getCampaignQuery", () => {
 
   it("trims tracked query values", () => {
     const query = getCampaignQuery(
-      new URLSearchParams("scene= juice01 &campaignId= tb-ai-juice-2026 &storeId= 001 "),
+      new URLSearchParams("scene= juice01 &campaignId= tb-ai-juice-2026 &storeId= 001 &target= Alipay &auto= 1 "),
     );
     expect(query).toMatchObject({
       scene: "juice01",
       campaignId: "tb-ai-juice-2026",
       storeId: "001",
+      target: "alipay",
+      auto: "1",
     });
   });
 });

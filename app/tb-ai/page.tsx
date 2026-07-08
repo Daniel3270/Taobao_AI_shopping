@@ -19,6 +19,10 @@ type ToastState = {
   text: string;
 };
 
+const ALIPAY_JINNI_APP_URL =
+  "alipays://platformapi/startApp?appId=20000001&target=jinni&JinniAppId=86000001&action=jumpToChatList";
+const ALIPAY_JINNI_WEB_URL = "https://jinni.alipay.com/";
+
 function isWeChatBrowser() {
   if (typeof navigator === "undefined") {
     return false;
@@ -35,9 +39,18 @@ function isTaobaoBrowser() {
   return /AliApp\(TB\//i.test(navigator.userAgent) || /\bTaobao\b/i.test(navigator.userAgent);
 }
 
+function isAlipayBrowser() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  return /AlipayClient/i.test(navigator.userAgent);
+}
+
 function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsString: string }) {
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
+  const [isAlipay, setIsAlipay] = useState(false);
   const [isTaobao, setIsTaobao] = useState(false);
 
   const campaignQuery = useMemo(() => {
@@ -56,6 +69,8 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const promptText = useMemo(() => {
     return getPromptTextForChannel(campaignQuery.channel, config.promptText);
   }, [campaignQuery.channel, config.promptText]);
+  const isAlipayTarget = campaignQuery.target === "alipay";
+  const isBlockedInWeChat = isWeChat;
   const fallbackMessage =
     campaignResult.meta.invalidScene || campaignResult.meta.fallback
       ? "活动信息加载异常，已使用默认配置。"
@@ -66,6 +81,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
       scene: campaignQuery.scene || config.scene,
       campaignId: campaignQuery.campaignId || config.campaignId,
       biz_channel: campaignQuery.channel,
+      target: campaignQuery.target,
       storeId: campaignQuery.storeId,
       sku: campaignQuery.sku,
     };
@@ -75,6 +91,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     campaignQuery.scene,
     campaignQuery.sku,
     campaignQuery.storeId,
+    campaignQuery.target,
     config.campaignId,
     config.scene,
   ]);
@@ -95,6 +112,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setIsWeChat(isWeChatBrowser());
+      setIsAlipay(isAlipayBrowser());
       setIsTaobao(isTaobaoBrowser());
     }, 0);
 
@@ -142,13 +160,16 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const copyPrompt = useCallback(async () => {
     const success = await copyText(promptText);
     if (success) {
-      setToast({ type: "success", text: "口令已复制，即将打开淘宝。" });
+      setToast({
+        type: "success",
+        text: isAlipayTarget ? "口令已复制，即将打开阿宝。" : "口令已复制，即将打开淘宝。",
+      });
       return true;
     }
 
     setToast({ type: "error", text: "自动复制失败，请长按口令手动复制。" });
     return false;
-  }, [promptText]);
+  }, [isAlipayTarget, promptText]);
 
   const handleCopyOnly = useCallback(async () => {
     recordAplusClick("click_copy_only", umengTrackingParams);
@@ -162,6 +183,25 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     track("copy_click", { mode: "copy_and_open" });
     const success = await copyPrompt();
     track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
+
+    if (isAlipayTarget) {
+      track("open_alipay", { destination: "jinni" });
+
+      window.setTimeout(async () => {
+        if (success) {
+          await copyText(promptText);
+        }
+
+        window.location.href = ALIPAY_JINNI_APP_URL;
+
+        window.setTimeout(() => {
+          if (document.visibilityState === "visible" && !isAlipay) {
+            window.location.href = ALIPAY_JINNI_WEB_URL;
+          }
+        }, 1400);
+      }, success ? 650 : 1000);
+      return;
+    }
 
     if (isTaobao) {
       return;
@@ -182,7 +222,17 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
         }
       }, 1400);
     }, success ? 650 : 1000);
-  }, [config.targetAppUrl, config.targetUrl, copyPrompt, isTaobao, promptText, track, umengTrackingParams]);
+  }, [
+    config.targetAppUrl,
+    config.targetUrl,
+    copyPrompt,
+    isAlipay,
+    isAlipayTarget,
+    isTaobao,
+    promptText,
+    track,
+    umengTrackingParams,
+  ]);
 
   return (
     <main className="relative mx-auto min-h-dvh w-full max-w-[430px] bg-[#dff3f6] text-brand-ink">
@@ -205,7 +255,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
             <div className="grid gap-2.5">
               <button
                 type="button"
-                disabled={isWeChat}
+                disabled={isBlockedInWeChat}
                 onClick={handleCopyAndOpen}
                 className="cta-attention flex min-h-14 w-full items-center justify-center gap-2.5 rounded-lg border border-white/25 bg-[linear-gradient(135deg,#178248_0%,#1f9858_48%,#126b3d_100%)] px-5 text-[17px] font-bold text-white shadow-soft active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
               >
@@ -213,12 +263,18 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
                   <ExternalLink className="h-4.5 w-4.5" aria-hidden="true" />
                 </span>
                 <span className="leading-none">
-                  {isWeChat ? "请用浏览器打开" : isTaobao ? "复制购物口令" : config.buttonText}
+                  {isBlockedInWeChat
+                    ? "请用浏览器打开"
+                    : isAlipayTarget
+                      ? "复制口令并打开阿宝"
+                      : isTaobao
+                        ? "复制购物口令"
+                        : config.buttonText}
                 </span>
               </button>
               <button
                 type="button"
-                disabled={isWeChat}
+                disabled={isBlockedInWeChat}
                 onClick={handleCopyOnly}
                 className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/25 bg-white/78 px-4 text-sm font-semibold text-brand-green shadow-[0_5px_18px_rgba(35,53,44,0.06)] backdrop-blur-sm active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-55"
               >
@@ -230,7 +286,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
         </div>
       </div>
 
-      {isWeChat ? (
+      {isBlockedInWeChat ? (
         <section className="fixed inset-0 z-30 mx-auto max-w-[430px] bg-white/72 text-brand-ink backdrop-blur-md">
           <svg
             className="absolute right-3 top-2 h-44 w-36 text-brand-green drop-shadow-lg"

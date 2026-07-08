@@ -51,3 +51,14 @@
 - 链接参数继续使用 `channel` 区分投放渠道。
 - 页面上报到友盟时使用 `biz_channel` 作为事件参数，避免使用友盟保留字段 `channel`。
 - 在友盟后台查看自定义事件时，请按 `biz_channel` 做筛选和分组。
+
+## 阿宝测试二维码
+
+以下二维码用于测试支付宝阿宝链路，会在原渠道参数基础上增加 `target=alipay`。
+
+| 文件 | 渠道 | 链接 | 复制口令 |
+| --- | --- | --- | --- |
+| `production/tb-ai-huangshang-alipay-production-qr.png` | 黄商阿宝测试 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang&target=alipay` | `帮我在淘宝闪购买一提金豆芽金银花柚子汁` |
+| `production/tb-ai-yinzuo-alipay-production-qr.png` | 银座阿宝测试 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=yinzuo&target=alipay` | `用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml` |
+| `local/tb-ai-huangshang-alipay-local-qr.png` | 黄商阿宝本地测试 | `http://192.168.5.9:3000/tb-ai/?channel=huangshang&target=alipay` | `帮我在淘宝闪购买一提金豆芽金银花柚子汁` |
+| `local/tb-ai-yinzuo-alipay-local-qr.png` | 银座阿宝本地测试 | `http://192.168.5.9:3000/tb-ai/?channel=yinzuo&target=alipay` | `用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml` |
