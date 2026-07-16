@@ -49,7 +49,7 @@ describe("友盟事件上报", () => {
     ]);
   });
 
-  it("发送复制打开淘宝点击事件", () => {
+  it("发送复制并打开千问点击事件", () => {
     const queue: Array<{ action: string; arguments: unknown[] }> = [];
 
     recordAplusClick("click_copy_and_open", { scene: "juice01" }, queue);

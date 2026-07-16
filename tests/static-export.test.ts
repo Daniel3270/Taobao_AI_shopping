@@ -1,6 +1,13 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { getCampaignConfig, getPromptTextForChannel, loadCampaignConfig } from "../lib/campaigns";
 import { getCampaignQuery } from "../lib/query";
+import {
+  QIANWEN_DEEP_LINK,
+  QIANWEN_HARMONY_DEEP_LINK,
+  getDevicePlatform,
+  getQianwenDeepLink,
+  getQianwenDownloadUrl,
+} from "../lib/qianwen";
 import { getTrackingEndpoint } from "../lib/tracking";
 
 const originalTrackingEndpoint = process.env.NEXT_PUBLIC_TRACKING_ENDPOINT;
@@ -67,7 +74,7 @@ describe("getPromptTextForChannel", () => {
 
   it("uses the huangshang prompt for Huangshang supermarket placements", () => {
     expect(getPromptTextForChannel("huangshang", defaultPromptText)).toBe(
-      "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
+      "帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁",
     );
   });
 
@@ -112,14 +119,32 @@ describe("getCampaignQuery", () => {
 
   it("trims tracked query values", () => {
     const query = getCampaignQuery(
-      new URLSearchParams("scene= juice01 &campaignId= tb-ai-juice-2026 &storeId= 001 &target= Alipay &auto= 1 "),
+      new URLSearchParams("scene= juice01 &campaignId= tb-ai-juice-2026 &storeId= 001 "),
     );
     expect(query).toMatchObject({
       scene: "juice01",
       campaignId: "tb-ai-juice-2026",
       storeId: "001",
-      target: "alipay",
-      auto: "1",
     });
+  });
+});
+
+describe("千问 App 跳转", () => {
+  it("识别移动端平台", () => {
+    expect(getDevicePlatform("Mozilla/5.0 (Linux; Android 15)")).toBe("android");
+    expect(getDevicePlatform("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0)")).toBe("ios");
+    expect(getDevicePlatform("Mozilla/5.0 (Linux; OpenHarmony 5.0)")).toBe("harmony");
+  });
+
+  it("鸿蒙使用首页 Scheme，其他平台使用通用 Scheme", () => {
+    expect(getQianwenDeepLink("harmony")).toBe(QIANWEN_HARMONY_DEEP_LINK);
+    expect(getQianwenDeepLink("android")).toBe(QIANWEN_DEEP_LINK);
+    expect(getQianwenDeepLink("ios")).toBe(QIANWEN_DEEP_LINK);
+  });
+
+  it("按平台返回对应下载地址", () => {
+    expect(getQianwenDownloadUrl("ios")).toContain("apps.apple.com");
+    expect(getQianwenDownloadUrl("android")).toContain("appdownload.alicdn.com");
+    expect(getQianwenDownloadUrl("harmony")).toContain("download-guide");
   });
 });

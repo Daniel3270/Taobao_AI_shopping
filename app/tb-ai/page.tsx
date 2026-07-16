@@ -1,7 +1,15 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, Copy, ExternalLink } from "lucide-react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Copy,
+  Download,
+  ExternalLink,
+  RotateCcw,
+  X,
+} from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { copyText } from "@/lib/clipboard";
 import {
@@ -11,6 +19,13 @@ import {
   loadCampaignConfig,
 } from "@/lib/campaigns";
 import { getCampaignQuery } from "@/lib/query";
+import {
+  type DevicePlatform,
+  QIANWEN_OPEN_FALLBACK_DELAY_MS,
+  getDevicePlatform,
+  getQianwenDeepLink,
+  getQianwenDownloadUrl,
+} from "@/lib/qianwen";
 import { trackEvent } from "@/lib/tracking";
 import { recordAplusClick, sendManualPageView } from "@/lib/umeng";
 
@@ -18,10 +33,6 @@ type ToastState = {
   type: "success" | "error";
   text: string;
 };
-
-const ALIPAY_JINNI_APP_URL =
-  "alipays://platformapi/startApp?appId=20000001&target=jinni&JinniAppId=86000001&action=jumpToChatList";
-const ALIPAY_JINNI_WEB_URL = "https://jinni.alipay.com/";
 
 function isWeChatBrowser() {
   if (typeof navigator === "undefined") {
@@ -31,27 +42,12 @@ function isWeChatBrowser() {
   return /MicroMessenger/i.test(navigator.userAgent);
 }
 
-function isTaobaoBrowser() {
-  if (typeof navigator === "undefined") {
-    return false;
-  }
-
-  return /AliApp\(TB\//i.test(navigator.userAgent) || /\bTaobao\b/i.test(navigator.userAgent);
-}
-
-function isAlipayBrowser() {
-  if (typeof navigator === "undefined") {
-    return false;
-  }
-
-  return /AlipayClient/i.test(navigator.userAgent);
-}
-
 function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsString: string }) {
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
-  const [isAlipay, setIsAlipay] = useState(false);
-  const [isTaobao, setIsTaobao] = useState(false);
+  const [platform, setPlatform] = useState<DevicePlatform>("unknown");
+  const [showInstallGuide, setShowInstallGuide] = useState(false);
+  const pageLeftAfterOpenAttempt = useRef(false);
 
   const campaignQuery = useMemo(() => {
     return getCampaignQuery(new URLSearchParams(searchParamsString));
@@ -69,8 +65,8 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const promptText = useMemo(() => {
     return getPromptTextForChannel(campaignQuery.channel, config.promptText);
   }, [campaignQuery.channel, config.promptText]);
-  const isAlipayTarget = campaignQuery.target === "alipay";
   const isBlockedInWeChat = isWeChat;
+  const qianwenDownloadUrl = getQianwenDownloadUrl(platform);
   const fallbackMessage =
     campaignResult.meta.invalidScene || campaignResult.meta.fallback
       ? "活动信息加载异常，已使用默认配置。"
@@ -81,7 +77,6 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
       scene: campaignQuery.scene || config.scene,
       campaignId: campaignQuery.campaignId || config.campaignId,
       biz_channel: campaignQuery.channel,
-      target: campaignQuery.target,
       storeId: campaignQuery.storeId,
       sku: campaignQuery.sku,
     };
@@ -91,7 +86,6 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     campaignQuery.scene,
     campaignQuery.sku,
     campaignQuery.storeId,
-    campaignQuery.target,
     config.campaignId,
     config.scene,
   ]);
@@ -112,12 +106,16 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setIsWeChat(isWeChatBrowser());
-      setIsAlipay(isAlipayBrowser());
-      setIsTaobao(isTaobaoBrowser());
+      setPlatform(
+        getDevicePlatform(
+          navigator.userAgent,
+          new URLSearchParams(searchParamsString).get("platform"),
+        ),
+      );
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [searchParamsString]);
 
   useEffect(() => {
     trackEvent({
@@ -157,19 +155,56 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     return () => window.clearTimeout(timer);
   }, [toast]);
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        pageLeftAfterOpenAttempt.current = true;
+      }
+    };
+    const handlePageHide = () => {
+      pageLeftAfterOpenAttempt.current = true;
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, []);
+
   const copyPrompt = useCallback(async () => {
     const success = await copyText(promptText);
     if (success) {
       setToast({
         type: "success",
-        text: isAlipayTarget ? "口令已复制，即将打开阿宝。" : "口令已复制，即将打开淘宝。",
+        text: "口令已复制，即将打开千问。",
       });
       return true;
     }
 
     setToast({ type: "error", text: "自动复制失败，请长按口令手动复制。" });
     return false;
-  }, [isAlipayTarget, promptText]);
+  }, [promptText]);
+
+  const openQianwen = useCallback(() => {
+    const deepLink = getQianwenDeepLink(platform);
+    pageLeftAfterOpenAttempt.current = false;
+    setShowInstallGuide(false);
+    track("open_qianwen", { platform, deepLink });
+    window.location.href = deepLink;
+
+    window.setTimeout(() => {
+      if (!pageLeftAfterOpenAttempt.current && document.visibilityState === "visible") {
+        setShowInstallGuide(true);
+        track("qianwen_fallback", {
+          platform,
+          downloadUrl: qianwenDownloadUrl,
+        });
+      }
+    }, QIANWEN_OPEN_FALLBACK_DELAY_MS);
+  }, [platform, qianwenDownloadUrl, track]);
 
   const handleCopyOnly = useCallback(async () => {
     recordAplusClick("click_copy_only", umengTrackingParams);
@@ -184,62 +219,26 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     const success = await copyPrompt();
     track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
 
-    if (isAlipayTarget) {
-      track("open_alipay", { destination: "jinni" });
+    window.setTimeout(openQianwen, success ? 300 : 600);
+  }, [copyPrompt, openQianwen, track, umengTrackingParams]);
 
-      window.setTimeout(async () => {
-        if (success) {
-          await copyText(promptText);
-        }
+  const handleRetryQianwen = useCallback(() => {
+    recordAplusClick("click_retry_open_qianwen", umengTrackingParams);
+    track("retry_qianwen", { platform });
+    openQianwen();
+  }, [openQianwen, platform, track, umengTrackingParams]);
 
-        window.location.href = ALIPAY_JINNI_APP_URL;
-
-        window.setTimeout(() => {
-          if (document.visibilityState === "visible" && !isAlipay) {
-            window.location.href = ALIPAY_JINNI_WEB_URL;
-          }
-        }, 1400);
-      }, success ? 650 : 1000);
-      return;
-    }
-
-    if (isTaobao) {
-      return;
-    }
-
-    track("open_taobao");
-
-    window.setTimeout(async () => {
-      if (success) {
-        await copyText(promptText);
-      }
-
-      window.location.href = config.targetAppUrl || config.targetUrl;
-
-      window.setTimeout(() => {
-        if (document.visibilityState === "visible") {
-          window.location.href = config.targetUrl;
-        }
-      }, 1400);
-    }, success ? 650 : 1000);
-  }, [
-    config.targetAppUrl,
-    config.targetUrl,
-    copyPrompt,
-    isAlipay,
-    isAlipayTarget,
-    isTaobao,
-    promptText,
-    track,
-    umengTrackingParams,
-  ]);
+  const handleDownloadQianwen = useCallback(() => {
+    recordAplusClick("click_download_qianwen", umengTrackingParams);
+    track("download_qianwen", { platform, downloadUrl: qianwenDownloadUrl });
+  }, [platform, qianwenDownloadUrl, track, umengTrackingParams]);
 
   return (
     <main className="relative mx-auto min-h-dvh w-full max-w-[430px] bg-[#dff3f6] text-brand-ink">
       <div className="relative aspect-[941/1672] min-h-dvh w-full overflow-hidden">
         <img
           src={config.posterImage}
-          alt={`${config.brandName}淘宝 AI 购物活动`}
+          alt={`${config.brandName}千问 AI 购物活动`}
           className="absolute inset-0 h-full w-full select-none object-cover"
         />
 
@@ -263,13 +262,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
                   <ExternalLink className="h-4.5 w-4.5" aria-hidden="true" />
                 </span>
                 <span className="leading-none">
-                  {isBlockedInWeChat
-                    ? "请用浏览器打开"
-                    : isAlipayTarget
-                      ? "复制口令并打开阿宝"
-                      : isTaobao
-                        ? "复制购物口令"
-                        : config.buttonText}
+                  {isBlockedInWeChat ? "请用浏览器打开" : config.buttonText}
                 </span>
               </button>
               <button
@@ -312,6 +305,57 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
           <div className="absolute inset-x-5 top-56 rounded-lg bg-white/95 px-5 py-5 text-center text-brand-ink shadow-soft">
             <p className="text-2xl font-bold">点右上角</p>
             <p className="mt-2 text-lg font-semibold text-brand-green">在浏览器打开</p>
+            <p className="mt-3 text-sm leading-6 text-brand-ink/65">
+              微信内无法稳定打开千问，请使用系统浏览器继续操作。
+            </p>
+          </div>
+        </section>
+      ) : null}
+
+      {showInstallGuide && !isBlockedInWeChat ? (
+        <section
+          className="fixed inset-0 z-50 mx-auto flex max-w-[430px] items-end bg-black/35 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] backdrop-blur-[2px]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="qianwen-install-title"
+        >
+          <div className="relative w-full rounded-lg bg-white px-5 pb-5 pt-6 text-brand-ink shadow-[0_20px_60px_rgba(20,48,34,0.3)]">
+            <button
+              type="button"
+              onClick={() => setShowInstallGuide(false)}
+              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full text-brand-ink/55 hover:bg-brand-green/8"
+              aria-label="关闭下载提示"
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+
+            <h2 id="qianwen-install-title" className="pr-10 text-xl font-bold">
+              没有打开千问？
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-brand-ink/65">
+              你的手机可能还没有安装千问 App。口令已经复制，安装完成后回到本页重新打开即可。
+            </p>
+
+            <div className="mt-5 grid gap-2.5">
+              <a
+                href={qianwenDownloadUrl}
+                target="_blank"
+                rel="noreferrer"
+                onClick={handleDownloadQianwen}
+                className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-green px-4 text-base font-bold text-white shadow-soft active:scale-[0.99]"
+              >
+                <Download className="h-5 w-5" aria-hidden="true" />
+                <span>下载千问 App</span>
+              </a>
+              <button
+                type="button"
+                onClick={handleRetryQianwen}
+                className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/25 bg-white px-4 text-sm font-semibold text-brand-green active:scale-[0.99]"
+              >
+                <RotateCcw className="h-4 w-4" aria-hidden="true" />
+                <span>我已安装，重新打开千问</span>
+              </button>
+            </div>
           </div>
         </section>
       ) : null}

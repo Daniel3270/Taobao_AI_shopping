@@ -1,6 +1,6 @@
 # 渠道二维码说明
 
-以下二维码均指向同一个活动页，只通过 `channel` 参数区分复制口令。
+以下二维码均指向同一个活动页，只通过 `channel` 参数区分复制口令。扫码进入后，页面统一复制口令并尝试打开千问 App。
 
 ## 正式服务二维码
 
@@ -8,7 +8,7 @@
 
 | 文件 | 渠道 | 正式链接 | 复制口令 |
 | --- | --- | --- | --- |
-| `production/tb-ai-huangshang-production-qr.png` | 黄商超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang` | `帮我在淘宝闪购买一提金豆芽金银花柚子汁` |
+| `production/tb-ai-huangshang-production-qr.png` | 黄商超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang` | `帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁` |
 | `production/tb-ai-changshen-production-qr.png` | 长申超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=changshen` | `帮我用淘宝闪购在长申超市买一提金豆芽金银花柚子汁100ml` |
 | `production/tb-ai-dazhangshengdemei-production-qr.png` | 大张盛德美渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=dazhangshengdemei` | `帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml` |
 | `production/tb-ai-jiadefu-production-qr.png` | 家得福渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=jiadefu` | `帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml` |
@@ -30,7 +30,7 @@
 
 | 文件 | 渠道 | 本地链接 | 复制口令 |
 | --- | --- | --- | --- |
-| `local/tb-ai-huangshang-local-qr.png` | 黄商超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=huangshang` | `帮我在淘宝闪购买一提金豆芽金银花柚子汁` |
+| `local/tb-ai-huangshang-local-qr.png` | 黄商超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=huangshang` | `帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁` |
 | `local/tb-ai-changshen-local-qr.png` | 长申超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=changshen` | `帮我用淘宝闪购在长申超市买一提金豆芽金银花柚子汁100ml` |
 | `local/tb-ai-dazhangshengdemei-local-qr.png` | 大张盛德美渠道 | `http://192.168.5.9:3000/tb-ai/?channel=dazhangshengdemei` | `帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml` |
 | `local/tb-ai-jiadefu-local-qr.png` | 家得福渠道 | `http://192.168.5.9:3000/tb-ai/?channel=jiadefu` | `帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml` |
@@ -46,19 +46,14 @@
 | `local/tb-ai-yingbeier-local-qr.png` | 婴贝儿渠道 | `http://192.168.5.9:3000/tb-ai/?channel=yingbeier` | `帮我用闪购在婴贝儿（领秀城贵和店）购买金豆芽金银花柚子汁宝宝饮品礼盒` |
 | `local/tb-ai-yinzuo-local-qr.png` | 银座超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=yinzuo` | `用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml` |
 
+## 当前网络测试二维码
+
+当前 Wi-Fi 测试地址：`http://10.10.10.27:3000`
+
+对应二维码单独存放在 `local_10.10.10.27/`。渠道和文件名与上方 `local/` 目录保持一致，仅将二维码内的主机地址替换为 `10.10.10.27`。
+
 ## 友盟统计口径
 
 - 链接参数继续使用 `channel` 区分投放渠道。
 - 页面上报到友盟时使用 `biz_channel` 作为事件参数，避免使用友盟保留字段 `channel`。
 - 在友盟后台查看自定义事件时，请按 `biz_channel` 做筛选和分组。
-
-## 阿宝测试二维码
-
-以下二维码用于测试支付宝阿宝链路，会在原渠道参数基础上增加 `target=alipay`。
-
-| 文件 | 渠道 | 链接 | 复制口令 |
-| --- | --- | --- | --- |
-| `production/tb-ai-huangshang-alipay-production-qr.png` | 黄商阿宝测试 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang&target=alipay` | `帮我在淘宝闪购买一提金豆芽金银花柚子汁` |
-| `production/tb-ai-yinzuo-alipay-production-qr.png` | 银座阿宝测试 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=yinzuo&target=alipay` | `用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml` |
-| `local/tb-ai-huangshang-alipay-local-qr.png` | 黄商阿宝本地测试 | `http://192.168.5.9:3000/tb-ai/?channel=huangshang&target=alipay` | `帮我在淘宝闪购买一提金豆芽金银花柚子汁` |
-| `local/tb-ai-yinzuo-alipay-local-qr.png` | 银座阿宝本地测试 | `http://192.168.5.9:3000/tb-ai/?channel=yinzuo&target=alipay` | `用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml` |

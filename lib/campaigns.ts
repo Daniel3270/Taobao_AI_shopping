@@ -9,8 +9,6 @@ export type CampaignConfig = {
   productImage: string;
   posterImage: string;
   promptText: string;
-  targetUrl: string;
-  targetAppUrl: string;
   buttonText: string;
   manualCopyTip: string;
   enabled: boolean;
@@ -38,12 +36,8 @@ export const defaultCampaignConfig: CampaignConfig = {
   productImage: "/assets/jindouya-products.webp",
   posterImage: "/assets/jindouya-poster-summer.webp",
   promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
-  targetUrl:
-    "https://pages-fast.m.taobao.com/wow/z/app/taowise/aiassistant/home?assistantOpenFrom=wb",
-  targetAppUrl:
-    "taobao://m.taobao.com/tbopen/index.html?h5Url=https%3A%2F%2Fpages-fast.m.taobao.com%2Fwow%2Fz%2Fapp%2Ftaowise%2Faiassistant%2Fhome%3FassistantOpenFrom%3Dwb",
-  buttonText: "复制口令并打开淘宝",
-  manualCopyTip: "如果没有自动复制，请长按上方提示词手动复制后再到淘宝粘贴。",
+  buttonText: "复制口令并打开千问",
+  manualCopyTip: "如果没有自动复制，请长按上方提示词手动复制后再到千问粘贴。",
   enabled: true,
 };
 
@@ -52,7 +46,7 @@ const campaignConfigs: Record<string, CampaignConfig> = {
 };
 
 const channelPromptTexts: Record<string, string> = {
-  huangshang: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
+  huangshang: "帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁",
   changshen: "帮我用淘宝闪购在长申超市买一提金豆芽金银花柚子汁100ml",
   dazhangshengdemei: "帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml",
   jiadefu: "帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml",

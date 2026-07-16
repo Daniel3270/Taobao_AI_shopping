@@ -5,8 +5,10 @@ export type TrackingEvent =
   | "copy_click"
   | "copy_success"
   | "copy_fail"
-  | "open_alipay"
-  | "open_taobao"
+  | "open_qianwen"
+  | "qianwen_fallback"
+  | "download_qianwen"
+  | "retry_qianwen"
   | "config_load_success"
   | "config_load_fail"
   | "invalid_scene";

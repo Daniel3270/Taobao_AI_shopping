@@ -1,6 +1,6 @@
-# 金豆芽 × 淘宝 AI 购物中转页
+# 金豆芽 × 千问 AI 购物中转页
 
-移动端优先的 H5 活动页，用于承接二维码扫码流量。用户进入金豆芽官方活动页后，可以复制购物口令，并尝试打开淘宝 AI 购物页面。
+移动端优先的 H5 活动页，用于承接二维码扫码流量。用户进入活动页后，可以复制渠道购物口令并打开千问 App；未安装时会显示对应系统的下载入口。
 
 ## 本地启动
 
@@ -37,9 +37,10 @@ Logo、16:9 Hero 和产品组合图仍保留在配置里，后续如果需要做
 
 - 活动页路径：`/tb-ai/`
 - 支持 `scene`、`channel`、`campaignId`、`storeId`、`sku` URL 参数
-- 点击“复制口令并打开淘宝”后，先复制提示词，再优先尝试唤起淘宝 App
-- 如果淘宝 App 唤起失败，会回退到淘宝 H5 链接
-- 微信内置浏览器会显示“请用浏览器打开”指引，避免微信内无法稳定跳转淘宝 App
+- 点击“复制口令并打开千问”后，先复制提示词，再尝试唤起千问 App
+- Android/iOS 使用通用千问 Scheme，鸿蒙使用千问首页 Scheme
+- 如果千问 App 未成功唤起，会显示对应系统的下载入口和重新打开按钮
+- 微信内置浏览器会显示“请用浏览器打开”指引，避免微信内无法稳定跳转千问 App
 - 页面隐藏提示词文本，但仍会正常复制 `promptText`
 - 友盟 A+ 埋点已接入
 - 如需自定义埋点接收地址，可配置 `NEXT_PUBLIC_TRACKING_ENDPOINT`
@@ -58,21 +59,20 @@ promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
 /tb-ai/?channel=kidswant
 ```
 
-## 修改淘宝链接
+## 修改千问链接
 
-编辑 [lib/campaigns.ts](./lib/campaigns.ts)，修改：
-
-```ts
-targetUrl: "https://pages-fast.m.taobao.com/wow/z/app/taowise/aiassistant/home?assistantOpenFrom=wb",
-```
-
-以及 App 唤起链接：
+编辑 [lib/qianwen.ts](./lib/qianwen.ts)，可修改千问 App Scheme：
 
 ```ts
-targetAppUrl: "taobao://m.taobao.com/tbopen/index.html?h5Url=...",
+QIANWEN_DEEP_LINK = "tongyi://page/h5?...";
+QIANWEN_HARMONY_DEEP_LINK = "tongyi://?source_type=scheme";
 ```
 
-`targetAppUrl` 用于优先尝试直接打开淘宝 App，`targetUrl` 用于失败后的 H5 兜底。
+以及 iOS、Android 和通用下载地址：
+
+```ts
+QIANWEN_DOWNLOAD_URLS
+```
 
 ## 新增 scene
 
@@ -107,7 +107,10 @@ http://localhost:3000/tb-ai/?scene=juice02
 - `copy_click`
 - `copy_success`
 - `copy_fail`
-- `open_taobao`
+- `open_qianwen`
+- `qianwen_fallback`
+- `download_qianwen`
+- `retry_qianwen`
 
 友盟相关配置在 [lib/umeng.ts](./lib/umeng.ts)。
 

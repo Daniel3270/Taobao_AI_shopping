@@ -4,8 +4,6 @@ export type CampaignQuery = {
   campaignId?: string;
   storeId?: string;
   sku?: string;
-  target?: string;
-  auto?: string;
 };
 
 const trackedKeys: Array<keyof CampaignQuery> = [
@@ -14,8 +12,6 @@ const trackedKeys: Array<keyof CampaignQuery> = [
   "campaignId",
   "storeId",
   "sku",
-  "target",
-  "auto",
 ];
 
 function normalizeCampaignQueryValue(key: keyof CampaignQuery, value: string) {
@@ -24,7 +20,7 @@ function normalizeCampaignQueryValue(key: keyof CampaignQuery, value: string) {
     return null;
   }
 
-  if (key === "channel" || key === "target" || key === "auto") {
+  if (key === "channel") {
     return trimmedValue.toLowerCase();
   }
 
