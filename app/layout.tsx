@@ -4,8 +4,8 @@ import { getAplusBootstrapScript } from "@/lib/umeng";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "金豆芽 × 千问 AI 购物",
-  description: "金豆芽千问 AI 购物活动中转页",
+  title: "金豆芽 × 淘宝 AI 购物",
+  description: "金豆芽淘宝与千问 AI 购物活动中转页",
 };
 
 export const viewport: Viewport = {

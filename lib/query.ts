@@ -4,6 +4,7 @@ export type CampaignQuery = {
   campaignId?: string;
   storeId?: string;
   sku?: string;
+  target?: string;
 };
 
 const trackedKeys: Array<keyof CampaignQuery> = [
@@ -12,6 +13,7 @@ const trackedKeys: Array<keyof CampaignQuery> = [
   "campaignId",
   "storeId",
   "sku",
+  "target",
 ];
 
 function normalizeCampaignQueryValue(key: keyof CampaignQuery, value: string) {
@@ -20,11 +22,17 @@ function normalizeCampaignQueryValue(key: keyof CampaignQuery, value: string) {
     return null;
   }
 
-  if (key === "channel") {
+  if (key === "channel" || key === "target") {
     return trimmedValue.toLowerCase();
   }
 
   return trimmedValue;
+}
+
+export type ShoppingTarget = "taobao" | "qianwen";
+
+export function getShoppingTarget(query: CampaignQuery): ShoppingTarget {
+  return query.target === "qianwen" ? "qianwen" : "taobao";
 }
 
 export function getCampaignQuery(searchParams: URLSearchParams): CampaignQuery {

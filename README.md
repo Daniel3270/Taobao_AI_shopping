@@ -1,6 +1,6 @@
-# 金豆芽 × 千问 AI 购物中转页
+# 金豆芽 AI 购物双链路中转页
 
-移动端优先的 H5 活动页，用于承接二维码扫码流量。用户进入活动页后，可以复制渠道购物口令并打开千问 App；未安装时会显示对应系统的下载入口。
+移动端优先的 H5 活动页，用于承接二维码扫码流量。默认复制渠道购物口令并打开淘宝 AI 购物；所有渠道都可以通过 `target=qianwen` 改为打开千问 App。
 
 ## 本地启动
 
@@ -36,11 +36,11 @@ Logo、16:9 Hero 和产品组合图仍保留在配置里，后续如果需要做
 ## 主要功能
 
 - 活动页路径：`/tb-ai/`
-- 支持 `scene`、`channel`、`campaignId`、`storeId`、`sku` URL 参数
-- 点击“复制口令并打开千问”后，先复制提示词，再尝试唤起千问 App
-- Android/iOS 使用通用千问 Scheme，鸿蒙使用千问首页 Scheme
-- 如果千问 App 未成功唤起，会显示对应系统的下载入口和重新打开按钮
-- 微信内置浏览器会显示“请用浏览器打开”指引，避免微信内无法稳定跳转千问 App
+- 支持 `scene`、`channel`、`campaignId`、`storeId`、`sku`、`target` URL 参数
+- 不传 `target` 时默认复制口令并打开淘宝 App，失败后回退淘宝 H5
+- 任意渠道添加 `target=qianwen` 后会打开千问 App
+- 千问链路按 Android/iOS/鸿蒙选择 Scheme，唤起失败时显示下载与重试入口
+- 微信内置浏览器会显示“请用浏览器打开”指引
 - 页面隐藏提示词文本，但仍会正常复制 `promptText`
 - 友盟 A+ 埋点已接入
 - 如需自定义埋点接收地址，可配置 `NEXT_PUBLIC_TRACKING_ENDPOINT`
@@ -58,6 +58,22 @@ promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
 ```text
 /tb-ai/?channel=kidswant
 ```
+
+## 双链路规则
+
+淘宝渠道链接无需 `target`：
+
+```text
+/tb-ai/?channel=kidswant
+```
+
+千问链路示例：
+
+```text
+/tb-ai/?channel=huangshang&target=qianwen
+```
+
+淘宝 App 与 H5 地址维护在 [lib/campaigns.ts](./lib/campaigns.ts) 的 `targetAppUrl`、`targetUrl`。千问链接维护在 [lib/qianwen.ts](./lib/qianwen.ts)。
 
 ## 修改千问链接
 
@@ -107,6 +123,7 @@ http://localhost:3000/tb-ai/?scene=juice02
 - `copy_click`
 - `copy_success`
 - `copy_fail`
+- `open_taobao`
 - `open_qianwen`
 - `qianwen_fallback`
 - `download_qianwen`

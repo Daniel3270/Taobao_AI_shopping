@@ -18,7 +18,7 @@ import {
   getPromptTextForChannel,
   loadCampaignConfig,
 } from "@/lib/campaigns";
-import { getCampaignQuery } from "@/lib/query";
+import { getCampaignQuery, getShoppingTarget } from "@/lib/query";
 import {
   type DevicePlatform,
   QIANWEN_OPEN_FALLBACK_DELAY_MS,
@@ -42,9 +42,18 @@ function isWeChatBrowser() {
   return /MicroMessenger/i.test(navigator.userAgent);
 }
 
+function isTaobaoBrowser() {
+  if (typeof navigator === "undefined") {
+    return false;
+  }
+
+  return /AliApp\(TB\//i.test(navigator.userAgent) || /\bTaobao\b/i.test(navigator.userAgent);
+}
+
 function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsString: string }) {
   const [toast, setToast] = useState<ToastState | null>(null);
   const [isWeChat, setIsWeChat] = useState(false);
+  const [isTaobao, setIsTaobao] = useState(false);
   const [platform, setPlatform] = useState<DevicePlatform>("unknown");
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const pageLeftAfterOpenAttempt = useRef(false);
@@ -65,6 +74,8 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const promptText = useMemo(() => {
     return getPromptTextForChannel(campaignQuery.channel, config.promptText);
   }, [campaignQuery.channel, config.promptText]);
+  const shoppingTarget = getShoppingTarget(campaignQuery);
+  const isQianwenTarget = shoppingTarget === "qianwen";
   const isBlockedInWeChat = isWeChat;
   const qianwenDownloadUrl = getQianwenDownloadUrl(platform);
   const fallbackMessage =
@@ -77,6 +88,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
       scene: campaignQuery.scene || config.scene,
       campaignId: campaignQuery.campaignId || config.campaignId,
       biz_channel: campaignQuery.channel,
+      target: shoppingTarget,
       storeId: campaignQuery.storeId,
       sku: campaignQuery.sku,
     };
@@ -88,24 +100,27 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     campaignQuery.storeId,
     config.campaignId,
     config.scene,
+    shoppingTarget,
   ]);
 
   const track = useCallback(
     (event: Parameters<typeof trackEvent>[0]["event"], extra?: Record<string, unknown>) => {
       trackEvent({
         ...campaignQuery,
+        target: shoppingTarget,
         event,
         scene: campaignQuery.scene || config.scene,
         campaignId: campaignQuery.campaignId || config.campaignId,
         extra,
       });
     },
-    [campaignQuery, config.campaignId, config.scene],
+    [campaignQuery, config.campaignId, config.scene, shoppingTarget],
   );
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setIsWeChat(isWeChatBrowser());
+      setIsTaobao(isTaobaoBrowser());
       setPlatform(
         getDevicePlatform(
           navigator.userAgent,
@@ -120,6 +135,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   useEffect(() => {
     trackEvent({
       ...campaignQuery,
+      target: shoppingTarget,
       event: "config_load_success",
       scene: campaignQuery.scene || campaignResult.data.scene,
       campaignId: campaignQuery.campaignId || campaignResult.data.campaignId,
@@ -129,12 +145,13 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     if (campaignResult.meta.invalidScene) {
       trackEvent({
         ...campaignQuery,
+        target: shoppingTarget,
         event: "invalid_scene",
         scene: campaignQuery.scene || scene || defaultCampaignConfig.scene,
         campaignId: campaignQuery.campaignId || campaignResult.data.campaignId,
       });
     }
-  }, [campaignQuery, campaignResult, scene]);
+  }, [campaignQuery, campaignResult, scene, shoppingTarget]);
 
   useEffect(() => {
     const browser = isWeChatBrowser() ? "wechat" : "external";
@@ -174,12 +191,12 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     };
   }, []);
 
-  const copyPrompt = useCallback(async () => {
+  const copyPrompt = useCallback(async (destination?: "淘宝" | "千问") => {
     const success = await copyText(promptText);
     if (success) {
       setToast({
         type: "success",
-        text: "口令已复制，即将打开千问。",
+        text: destination ? `口令已复制，即将打开${destination}。` : "口令已复制。",
       });
       return true;
     }
@@ -216,11 +233,46 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const handleCopyAndOpen = useCallback(async () => {
     recordAplusClick("click_copy_and_open", umengTrackingParams);
     track("copy_click", { mode: "copy_and_open" });
-    const success = await copyPrompt();
+    const success = await copyPrompt(isQianwenTarget ? "千问" : "淘宝");
     track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
 
-    window.setTimeout(openQianwen, success ? 300 : 600);
-  }, [copyPrompt, openQianwen, track, umengTrackingParams]);
+    if (isQianwenTarget) {
+      window.setTimeout(openQianwen, success ? 300 : 600);
+      return;
+    }
+
+    setShowInstallGuide(false);
+
+    if (isTaobao) {
+      return;
+    }
+
+    track("open_taobao");
+
+    window.setTimeout(async () => {
+      if (success) {
+        await copyText(promptText);
+      }
+
+      window.location.href = config.targetAppUrl || config.targetUrl;
+
+      window.setTimeout(() => {
+        if (document.visibilityState === "visible") {
+          window.location.href = config.targetUrl;
+        }
+      }, 1400);
+    }, success ? 650 : 1000);
+  }, [
+    config.targetAppUrl,
+    config.targetUrl,
+    copyPrompt,
+    isQianwenTarget,
+    isTaobao,
+    openQianwen,
+    promptText,
+    track,
+    umengTrackingParams,
+  ]);
 
   const handleRetryQianwen = useCallback(() => {
     recordAplusClick("click_retry_open_qianwen", umengTrackingParams);
@@ -238,7 +290,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
       <div className="relative aspect-[941/1672] min-h-dvh w-full overflow-hidden">
         <img
           src={config.posterImage}
-          alt={`${config.brandName}千问 AI 购物活动`}
+          alt={`${config.brandName}${isQianwenTarget ? "千问" : "淘宝"} AI 购物活动`}
           className="absolute inset-0 h-full w-full select-none object-cover"
         />
 
@@ -262,7 +314,13 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
                   <ExternalLink className="h-4.5 w-4.5" aria-hidden="true" />
                 </span>
                 <span className="leading-none">
-                  {isBlockedInWeChat ? "请用浏览器打开" : config.buttonText}
+                  {isBlockedInWeChat
+                    ? "请用浏览器打开"
+                    : isQianwenTarget
+                      ? "复制口令并打开千问"
+                      : isTaobao
+                        ? "复制购物口令"
+                        : config.buttonText}
                 </span>
               </button>
               <button
@@ -306,13 +364,13 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
             <p className="text-2xl font-bold">点右上角</p>
             <p className="mt-2 text-lg font-semibold text-brand-green">在浏览器打开</p>
             <p className="mt-3 text-sm leading-6 text-brand-ink/65">
-              微信内无法稳定打开千问，请使用系统浏览器继续操作。
+              微信内无法稳定打开{isQianwenTarget ? "千问" : "淘宝"}，请使用系统浏览器继续操作。
             </p>
           </div>
         </section>
       ) : null}
 
-      {showInstallGuide && !isBlockedInWeChat ? (
+      {showInstallGuide && isQianwenTarget && !isBlockedInWeChat ? (
         <section
           className="fixed inset-0 z-50 mx-auto flex max-w-[430px] items-end bg-black/35 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] backdrop-blur-[2px]"
           role="dialog"

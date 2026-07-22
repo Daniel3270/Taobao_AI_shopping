@@ -9,6 +9,8 @@ export type CampaignConfig = {
   productImage: string;
   posterImage: string;
   promptText: string;
+  targetUrl: string;
+  targetAppUrl: string;
   buttonText: string;
   manualCopyTip: string;
   enabled: boolean;
@@ -36,8 +38,12 @@ export const defaultCampaignConfig: CampaignConfig = {
   productImage: "/assets/jindouya-products.webp",
   posterImage: "/assets/jindouya-poster-summer.webp",
   promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
-  buttonText: "复制口令并打开千问",
-  manualCopyTip: "如果没有自动复制，请长按上方提示词手动复制后再到千问粘贴。",
+  targetUrl:
+    "https://pages-fast.m.taobao.com/wow/z/app/taowise/aiassistant/home?assistantOpenFrom=wb",
+  targetAppUrl:
+    "taobao://m.taobao.com/tbopen/index.html?h5Url=https%3A%2F%2Fpages-fast.m.taobao.com%2Fwow%2Fz%2Fapp%2Ftaowise%2Faiassistant%2Fhome%3FassistantOpenFrom%3Dwb",
+  buttonText: "复制口令并打开淘宝",
+  manualCopyTip: "如果没有自动复制，请长按上方提示词手动复制后再到淘宝粘贴。",
   enabled: true,
 };
 

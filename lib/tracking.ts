@@ -5,6 +5,7 @@ export type TrackingEvent =
   | "copy_click"
   | "copy_success"
   | "copy_fail"
+  | "open_taobao"
   | "open_qianwen"
   | "qianwen_fallback"
   | "download_qianwen"

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { getCampaignConfig, getPromptTextForChannel, loadCampaignConfig } from "../lib/campaigns";
-import { getCampaignQuery } from "../lib/query";
+import { getCampaignQuery, getShoppingTarget } from "../lib/query";
 import {
   QIANWEN_DEEP_LINK,
   QIANWEN_HARMONY_DEEP_LINK,
@@ -48,6 +48,7 @@ describe("getCampaignConfig", () => {
       code: 0,
       data: {
         scene: "juice01",
+        buttonText: "复制口令并打开淘宝",
       },
       meta: {
         fallback: true,
@@ -119,13 +120,28 @@ describe("getCampaignQuery", () => {
 
   it("trims tracked query values", () => {
     const query = getCampaignQuery(
-      new URLSearchParams("scene= juice01 &campaignId= tb-ai-juice-2026 &storeId= 001 "),
+      new URLSearchParams(
+        "scene= juice01 &campaignId= tb-ai-juice-2026 &storeId= 001 &target= Qianwen ",
+      ),
     );
     expect(query).toMatchObject({
       scene: "juice01",
       campaignId: "tb-ai-juice-2026",
       storeId: "001",
+      target: "qianwen",
     });
+  });
+});
+
+describe("购物目标路由", () => {
+  it("默认使用淘宝链路", () => {
+    expect(getShoppingTarget({ channel: "huangshang" })).toBe("taobao");
+  });
+
+  it("所有渠道都可以使用千问链路", () => {
+    expect(getShoppingTarget({ channel: "huangshang", target: "qianwen" })).toBe("qianwen");
+    expect(getShoppingTarget({ channel: "kidswant", target: "qianwen" })).toBe("qianwen");
+    expect(getShoppingTarget({ channel: "yinzuo", target: "qianwen" })).toBe("qianwen");
   });
 });
 

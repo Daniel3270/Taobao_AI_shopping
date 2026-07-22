@@ -1,59 +1,58 @@
 # 渠道二维码说明
 
-以下二维码均指向同一个活动页，只通过 `channel` 参数区分复制口令。扫码进入后，页面统一复制口令并尝试打开千问 App。
+二维码按购物链路分为 `taobao/` 和 `qianwen/` 两套目录。两套二维码都进入同一个 `/tb-ai/` 落地页，通过 URL 参数决定最终打开淘宝还是千问。
 
-## 正式服务二维码
+## 目录结构
 
-正式服务域名：`https://jdyqwen.zirancuishipin.com`
+```text
+QR_code/
+├─ taobao/
+│  ├─ production/             正式服务二维码
+│  ├─ local_10.10.10.27/      当前 Wi-Fi 测试二维码
+│  └─ local_192.168.5.9/      旧局域网测试二维码
+└─ qianwen/
+   ├─ production/             全渠道正式服务二维码
+   └─ local_10.10.10.27/      全渠道当前 Wi-Fi 测试二维码
+```
 
-| 文件 | 渠道 | 正式链接 | 复制口令 |
-| --- | --- | --- | --- |
-| `production/tb-ai-huangshang-production-qr.png` | 黄商超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang` | `帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁` |
-| `production/tb-ai-changshen-production-qr.png` | 长申超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=changshen` | `帮我用淘宝闪购在长申超市买一提金豆芽金银花柚子汁100ml` |
-| `production/tb-ai-dazhangshengdemei-production-qr.png` | 大张盛德美渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=dazhangshengdemei` | `帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml` |
-| `production/tb-ai-jiadefu-production-qr.png` | 家得福渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=jiadefu` | `帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml` |
-| `production/tb-ai-jiajiali-production-qr.png` | 家家利超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=jiajiali` | `帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml` |
-| `production/tb-ai-jiarong-production-qr.png` | 嘉荣渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=jiarong` | `帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁` |
-| `production/tb-ai-kidswant-production-qr.png` | 孩子王渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=kidswant` | `用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml` |
-| `production/tb-ai-huayubaijia-production-qr.png` | 华豫佰佳超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huayubaijia` | `帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml` |
-| `production/tb-ai-metro-production-qr.png` | 麦德龙渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=metro` | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
-| `production/tb-ai-miaoduoke-production-qr.png` | 妙多客超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=miaoduoke` | `帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml` |
-| `production/tb-ai-rtmart-production-qr.png` | 大润发渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=rtmart` | `帮我用淘宝闪购在大润发买一提金豆芽金银花柚子汁` |
-| `production/tb-ai-xingqin-production-qr.png` | 兴勤超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=xingqin` | `帮我用淘宝闪购在兴勤超市买一提金豆芽金银花柚子汁` |
-| `production/tb-ai-yasi-production-qr.png` | 雅斯超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=yasi` | `帮我用淘宝闪购在雅斯超市买一提金豆芽金银花柚子汁复合果汁饮品100ml` |
-| `production/tb-ai-yingbeier-production-qr.png` | 婴贝儿渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=yingbeier` | `帮我用闪购在婴贝儿（领秀城贵和店）购买金豆芽金银花柚子汁宝宝饮品礼盒` |
-| `production/tb-ai-yinzuo-production-qr.png` | 银座超市渠道 | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=yinzuo` | `用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml` |
+## 淘宝链路
 
-## 本地测试二维码
+淘宝是默认链路。二维码 URL 只需要 `channel` 参数，不添加 `target`：
 
-本地测试地址：`http://192.168.5.9:3000`
+```text
+https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
+```
 
-| 文件 | 渠道 | 本地链接 | 复制口令 |
-| --- | --- | --- | --- |
-| `local/tb-ai-huangshang-local-qr.png` | 黄商超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=huangshang` | `帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁` |
-| `local/tb-ai-changshen-local-qr.png` | 长申超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=changshen` | `帮我用淘宝闪购在长申超市买一提金豆芽金银花柚子汁100ml` |
-| `local/tb-ai-dazhangshengdemei-local-qr.png` | 大张盛德美渠道 | `http://192.168.5.9:3000/tb-ai/?channel=dazhangshengdemei` | `帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml` |
-| `local/tb-ai-jiadefu-local-qr.png` | 家得福渠道 | `http://192.168.5.9:3000/tb-ai/?channel=jiadefu` | `帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml` |
-| `local/tb-ai-jiajiali-local-qr.png` | 家家利超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=jiajiali` | `帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml` |
-| `local/tb-ai-jiarong-local-qr.png` | 嘉荣渠道 | `http://192.168.5.9:3000/tb-ai/?channel=jiarong` | `帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁` |
-| `local/tb-ai-kidswant-local-qr.png` | 孩子王渠道 | `http://192.168.5.9:3000/tb-ai/?channel=kidswant` | `用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml` |
-| `local/tb-ai-huayubaijia-local-qr.png` | 华豫佰佳超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=huayubaijia` | `帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml` |
-| `local/tb-ai-metro-local-qr.png` | 麦德龙渠道 | `http://192.168.5.9:3000/tb-ai/?channel=metro` | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
-| `local/tb-ai-miaoduoke-local-qr.png` | 妙多客超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=miaoduoke` | `帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml` |
-| `local/tb-ai-rtmart-local-qr.png` | 大润发渠道 | `http://192.168.5.9:3000/tb-ai/?channel=rtmart` | `帮我用淘宝闪购在大润发买一提金豆芽金银花柚子汁` |
-| `local/tb-ai-xingqin-local-qr.png` | 兴勤超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=xingqin` | `帮我用淘宝闪购在兴勤超市买一提金豆芽金银花柚子汁` |
-| `local/tb-ai-yasi-local-qr.png` | 雅斯超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=yasi` | `帮我用淘宝闪购在雅斯超市买一提金豆芽金银花柚子汁复合果汁饮品100ml` |
-| `local/tb-ai-yingbeier-local-qr.png` | 婴贝儿渠道 | `http://192.168.5.9:3000/tb-ai/?channel=yingbeier` | `帮我用闪购在婴贝儿（领秀城贵和店）购买金豆芽金银花柚子汁宝宝饮品礼盒` |
-| `local/tb-ai-yinzuo-local-qr.png` | 银座超市渠道 | `http://192.168.5.9:3000/tb-ai/?channel=yinzuo` | `用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml` |
+正式二维码位于 `taobao/production/`，当前网络测试二维码位于 `taobao/local_10.10.10.27/`。两批目录中的渠道文件名保持一致。
 
-## 当前网络测试二维码
+| 文件 | 渠道 | 复制口令 |
+| --- | --- | --- |
+| `tb-ai-huangshang-*-qr.png` | 黄商超市 | `帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁` |
+| `tb-ai-changshen-*-qr.png` | 长申超市 | `帮我用淘宝闪购在长申超市买一提金豆芽金银花柚子汁100ml` |
+| `tb-ai-dazhangshengdemei-*-qr.png` | 大张盛德美 | `帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml` |
+| `tb-ai-jiadefu-*-qr.png` | 家得福 | `帮我用淘宝闪购在家得福购买一提【不怕上火】金豆芽金银花柚子汁100ml` |
+| `tb-ai-jiajiali-*-qr.png` | 家家利超市 | `帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml` |
+| `tb-ai-jiarong-*-qr.png` | 嘉荣 | `帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁` |
+| `tb-ai-kidswant-*-qr.png` | 孩子王 | `用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml` |
+| `tb-ai-huayubaijia-*-qr.png` | 华豫佰佳超市 | `帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml` |
+| `tb-ai-metro-*-qr.png` | 麦德龙 | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
+| `tb-ai-miaoduoke-*-qr.png` | 妙多客超市 | `帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml` |
+| `tb-ai-rtmart-*-qr.png` | 大润发 | `帮我用淘宝闪购在大润发买一提金豆芽金银花柚子汁` |
+| `tb-ai-xingqin-*-qr.png` | 兴勤超市 | `帮我用淘宝闪购在兴勤超市买一提金豆芽金银花柚子汁` |
+| `tb-ai-yasi-*-qr.png` | 雅斯超市 | `帮我用淘宝闪购在雅斯超市买一提金豆芽金银花柚子汁复合果汁饮品100ml` |
+| `tb-ai-yingbeier-*-qr.png` | 婴贝儿 | `帮我用闪购在婴贝儿（领秀城贵和店）购买金豆芽金银花柚子汁宝宝饮品礼盒` |
+| `tb-ai-yinzuo-*-qr.png` | 银座超市 | `用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml` |
 
-当前 Wi-Fi 测试地址：`http://10.10.10.27:3000`
+## 千问链路
 
-对应二维码单独存放在 `local_10.10.10.27/`。渠道和文件名与上方 `local/` 目录保持一致，仅将二维码内的主机地址替换为 `10.10.10.27`。
+千问链路支持上表中的全部渠道，URL 需要同时传入对应的 `channel` 和 `target=qianwen`。正式与测试目录各有 15 张二维码，渠道提示词与淘宝链路共用同一份配置。
+
+| 环境 | 文件命名 | URL 示例 |
+| --- | --- | --- |
+| 正式 | `qianwen/production/tb-ai-{channel}-qianwen-production-qr.png` | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang&target=qianwen` |
+| 测试 | `qianwen/local_10.10.10.27/tb-ai-{channel}-qianwen-local-qr.png` | `http://10.10.10.27:3000/tb-ai/?channel=huangshang&target=qianwen` |
 
 ## 友盟统计口径
 
-- 链接参数继续使用 `channel` 区分投放渠道。
-- 页面上报到友盟时使用 `biz_channel` 作为事件参数，避免使用友盟保留字段 `channel`。
-- 在友盟后台查看自定义事件时，请按 `biz_channel` 做筛选和分组。
+- `biz_channel` 区分渠道。
+- `target` 区分实际执行的 `taobao` 或 `qianwen` 链路。
