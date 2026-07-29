@@ -37,6 +37,7 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
 | `tb-ai-huayubaijia-*-qr.png` | 华豫佰佳超市 | `帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml` |
 | `tb-ai-metro-*-qr.png` | 麦德龙 | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
 | `tb-ai-miaoduoke-*-qr.png` | 妙多客超市 | `帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml` |
+| `tb-ai-ouya-*-qr.png` | 欧亚超市 | `帮我用淘宝闪购在欧亚超市买一提金豆芽金银花柚子汁` |
 | `tb-ai-rtmart-*-qr.png` | 大润发 | `帮我用淘宝闪购在大润发买一提金豆芽金银花柚子汁` |
 | `tb-ai-xingqin-*-qr.png` | 兴勤超市 | `帮我用淘宝闪购在兴勤超市买一提金豆芽金银花柚子汁` |
 | `tb-ai-yasi-*-qr.png` | 雅斯超市 | `帮我用淘宝闪购在雅斯超市买一提金豆芽金银花柚子汁复合果汁饮品100ml` |
@@ -45,7 +46,7 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
 
 ## 千问链路
 
-千问链路支持上表中的全部渠道，URL 需要同时传入对应的 `channel` 和 `target=qianwen`。正式与测试目录各有 15 张二维码，渠道提示词与淘宝链路共用同一份配置。
+千问链路支持上表中的全部渠道，URL 需要同时传入对应的 `channel` 和 `target=qianwen`。正式与测试目录各有 16 张二维码，渠道提示词与淘宝链路共用同一份配置。
 
 | 环境 | 文件命名 | URL 示例 |
 | --- | --- | --- |
