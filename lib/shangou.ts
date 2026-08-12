@@ -14,6 +14,16 @@ export const SHANGOU_DOWNLOAD_URLS: Record<Exclude<DevicePlatform, "harmony">, s
   )}`,
 };
 
+export function getShangouPromptText(promptText: string) {
+  return promptText
+    .replace(/^帮我用淘宝闪购在/, "帮我在")
+    .replace(/^帮我在淘宝闪购买/, "帮我买")
+    .replace(/^用闪购帮我在/, "帮我在")
+    .replace(/^帮我用闪购在/, "帮我在")
+    .replaceAll("淘宝闪购", "")
+    .trim();
+}
+
 export function getShangouAiChatUrl(promptText: string) {
   const url = new URL(SHANGOU_AI_CHAT_URL);
   url.searchParams.set("voiceQuery", promptText);

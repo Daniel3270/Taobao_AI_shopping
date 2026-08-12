@@ -30,6 +30,7 @@ import {
   SHANGOU_OPEN_FALLBACK_DELAY_MS,
   getShangouDeepLink,
   getShangouDownloadUrl,
+  getShangouPromptText,
 } from "@/lib/shangou";
 import { trackEvent } from "@/lib/tracking";
 import { recordAplusClick, sendManualPageView } from "@/lib/umeng";
@@ -76,12 +77,13 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [scene]);
 
   const config: CampaignConfig = campaignResult.data;
-  const promptText = useMemo(() => {
-    return getPromptTextForChannel(campaignQuery.channel, config.promptText);
-  }, [campaignQuery.channel, config.promptText]);
   const shoppingTarget = getShoppingTarget(campaignQuery);
   const isQianwenTarget = shoppingTarget === "qianwen";
   const isShangouTarget = shoppingTarget === "shangou";
+  const promptText = useMemo(() => {
+    const channelPromptText = getPromptTextForChannel(campaignQuery.channel, config.promptText);
+    return isShangouTarget ? getShangouPromptText(channelPromptText) : channelPromptText;
+  }, [campaignQuery.channel, config.promptText, isShangouTarget]);
   const targetAppName = isQianwenTarget ? "千问" : isShangouTarget ? "淘宝闪购" : "淘宝";
   const isBlockedInWeChat = isWeChat;
   const qianwenDownloadUrl = getQianwenDownloadUrl(platform);

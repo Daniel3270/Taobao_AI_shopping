@@ -141,7 +141,7 @@ lib/campaigns.ts
 3. 默认使用淘宝 Scheme，页面仍可见时回退淘宝 H5。
 4. 全部渠道的 `target=qianwen` 链接使用千问 Scheme；鸿蒙使用千问首页 Scheme。
 5. 千问尝试 1.8 秒后页面仍可见时，显示对应系统的下载和重试入口。
-6. `target=shangou` 使用淘宝闪购 `eleme://web` Scheme，并将渠道口令作为 `voiceQuery` 传入“AI点外卖”；该链路已通过 Android 和 HarmonyOS 真机验证。
+6. `target=shangou` 会移除渠道口令中的“淘宝闪购/闪购”平台前缀，使用淘宝闪购 `eleme://web` Scheme，并将处理后的自然语句作为 `voiceQuery` 传入“AI点外卖”；该链路已通过 Android 和 HarmonyOS 真机验证。
 7. 淘宝闪购尝试 1.8 秒后页面仍可见时，显示对应系统的下载和重试入口。
 
 ### 7.4 微信浏览器处理

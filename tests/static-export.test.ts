@@ -13,6 +13,7 @@ import {
   getShangouAiChatUrl,
   getShangouDeepLink,
   getShangouDownloadUrl,
+  getShangouPromptText,
 } from "../lib/shangou";
 import { getTrackingEndpoint } from "../lib/tracking";
 
@@ -179,7 +180,16 @@ describe("千问 App 跳转", () => {
 });
 
 describe("淘宝闪购 AI 点外卖跳转", () => {
-  const promptText = "帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁";
+  const promptText = "帮我在黄商超市买一提金豆芽金银花柚子汁";
+
+  it.each([
+    ["帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁", promptText],
+    ["帮我在淘宝闪购买一提金豆芽金银花柚子汁", "帮我买一提金豆芽金银花柚子汁"],
+    ["用闪购帮我在孩子王购买金豆芽金银花柚子汁", "帮我在孩子王购买金豆芽金银花柚子汁"],
+    ["帮我用闪购在婴贝儿购买金豆芽金银花柚子汁", "帮我在婴贝儿购买金豆芽金银花柚子汁"],
+  ])("移除淘宝闪购链路提示词中的平台名称：%s", (sourcePrompt, expectedPrompt) => {
+    expect(getShangouPromptText(sourcePrompt)).toBe(expectedPrompt);
+  });
 
   it("将渠道提示词写入 AI 点外卖 voiceQuery", () => {
     const chatUrl = new URL(getShangouAiChatUrl(promptText));

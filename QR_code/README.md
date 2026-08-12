@@ -66,7 +66,7 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
 | 正式 | `shangou/production/tb-ai-{channel}-shangou-production-qr.png` | `https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang&target=shangou` |
 | 测试 | `shangou/local_10.10.10.27/tb-ai-{channel}-shangou-local-qr.png` | `http://10.10.10.27:3000/tb-ai/?channel=huangshang&target=shangou` |
 
-该链路会先复制对应渠道口令，再通过淘宝闪购 `eleme://web` Scheme 打开“AI点外卖”页面，并将同一条口令作为 `voiceQuery` 携带。外部深链已通过 Android 和 HarmonyOS 真机验证，iOS 正式投放前仍需单独验证。
+该链路会先移除渠道口令中的“淘宝闪购/闪购”平台前缀并复制自然语句，再通过淘宝闪购 `eleme://web` Scheme 打开“AI点外卖”页面，并将同一条口令作为 `voiceQuery` 携带。外部深链已通过 Android 和 HarmonyOS 真机验证，iOS 正式投放前仍需单独验证。
 
 ## 友盟统计口径
 
