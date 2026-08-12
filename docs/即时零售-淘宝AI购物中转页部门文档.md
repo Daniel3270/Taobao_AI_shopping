@@ -1,10 +1,10 @@
-# 即时零售项目：金豆芽 AI 购物双链路中转页
+# 即时零售项目：金豆芽 AI 购物三链路中转页
 
 ## 1. 项目概述
 
-本项目是面向即时零售投放场景的移动端 H5 中转页，用于承接二维码扫码流量，引导用户复制淘宝闪购口令，并根据二维码入口唤起淘宝或千问 App。
+本项目是面向即时零售投放场景的移动端 H5 中转页，用于承接二维码扫码流量，引导用户复制淘宝闪购口令，并根据二维码入口唤起淘宝、千问或淘宝闪购 App。
 
-当前默认链路为淘宝 AI 购物，所有原有渠道二维码继续使用。全部渠道额外提供 `target=qianwen` 的千问链路；千问未成功唤起时显示下载和重新打开入口。
+当前默认链路为淘宝 AI 购物，所有原有渠道二维码继续使用。`target=qianwen` 使用千问链路，`target=shangou` 尝试直达淘宝闪购“AI点外卖”；目标 App 未成功唤起时显示下载和重新打开入口。
 
 项目已配置为纯静态导出，可部署到静态托管、OSS、CDN、Nginx 静态目录等环境。
 
@@ -23,8 +23,9 @@
 4. 系统按渠道匹配购物口令，并解析实际购物目标。
 5. 不传 `target` 时复制口令并打开淘宝。
 6. 任意渠道带 `target=qianwen` 时复制对应渠道口令并打开千问。
-7. 千问未成功唤起时显示下载和重新打开入口；淘宝唤起失败时回退淘宝 H5。
-8. 微信内置浏览器中显示“请用浏览器打开”指引。
+7. 任意渠道带 `target=shangou` 时复制对应渠道口令，并通过 `voiceQuery` 尝试直达淘宝闪购“AI点外卖”。
+8. 千问或淘宝闪购未成功唤起时显示下载和重新打开入口；淘宝唤起失败时回退淘宝 H5。
+9. 微信内置浏览器中显示“请用浏览器打开”指引。
 
 ## 4. 当前线上入口
 
@@ -58,6 +59,7 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=metro
 | `huangshang` | 黄商超市 | 帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁 |
 | `kidswant` | 孩子王渠道 | 用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml*13袋 |
 | `jiadefu` | 家得福渠道 | 帮我在家得福买一提金豆芽金银花柚子汁 |
+| `jiajiayue` | 家家悦渠道 | 帮我用淘宝闪购在家家悦买一提金豆芽金银花柚子汁 |
 | `metro` | 麦德龙渠道 | 用闪购帮我在麦德龙购买金豆芽金银花柚子汁 |
 
 渠道二维码文件存放在：
@@ -67,6 +69,8 @@ QR_code/taobao/production/
 QR_code/taobao/local_10.10.10.27/
 QR_code/qianwen/production/
 QR_code/qianwen/local_10.10.10.27/
+QR_code/shangou/production/
+QR_code/shangou/local_10.10.10.27/
 ```
 
 正式二维码文件：
@@ -76,6 +80,7 @@ QR_code/qianwen/local_10.10.10.27/
 | `tb-ai-huangshang-production-qr.png` | 黄商超市渠道 |
 | `tb-ai-kidswant-production-qr.png` | 孩子王渠道 |
 | `tb-ai-jiadefu-production-qr.png` | 家得福渠道 |
+| `tb-ai-jiajiayue-production-qr.png` | 家家悦渠道 |
 | `tb-ai-metro-production-qr.png` | 麦德龙渠道 |
 
 ## 6. 支持的 URL 参数
@@ -87,7 +92,7 @@ QR_code/qianwen/local_10.10.10.27/
 | `campaignId` | 活动 ID，可用于投放侧自定义活动归因 |
 | `storeId` | 门店 ID，可用于门店维度追踪 |
 | `sku` | 商品 SKU，可用于商品维度追踪 |
-| `target` | 购物目标；传入 `qianwen` 时使用千问，其他情况默认 `taobao` |
+| `target` | 购物目标；支持 `qianwen`、`shangou`，其他情况默认 `taobao` |
 
 示例：
 
@@ -119,7 +124,7 @@ lib/campaigns.ts
 | `buttonText` | 主按钮文案 |
 | `enabled` | 活动是否启用 |
 
-淘宝目标地址维护在 `lib/campaigns.ts`，千问 Scheme、平台识别和下载地址维护在 `lib/qianwen.ts`。
+淘宝目标地址维护在 `lib/campaigns.ts`，千问 Scheme、平台识别和下载地址维护在 `lib/qianwen.ts`，淘宝闪购“AI点外卖”地址、Scheme 和下载地址维护在 `lib/shangou.ts`。
 
 当传入未知 `scene` 时，系统会回退到默认活动配置，并上报 `invalid_scene` 事件。
 
@@ -127,7 +132,7 @@ lib/campaigns.ts
 
 渠道口令通过 `channelPromptTexts` 维护。页面读取 URL 中的 `channel` 参数后，会优先使用渠道专属口令；没有匹配到渠道时，使用默认 `promptText`。
 
-### 7.3 双链路跳转
+### 7.3 三链路跳转
 
 点击主按钮后，页面执行以下逻辑：
 
@@ -136,10 +141,12 @@ lib/campaigns.ts
 3. 默认使用淘宝 Scheme，页面仍可见时回退淘宝 H5。
 4. 全部渠道的 `target=qianwen` 链接使用千问 Scheme；鸿蒙使用千问首页 Scheme。
 5. 千问尝试 1.8 秒后页面仍可见时，显示对应系统的下载和重试入口。
+6. `target=shangou` 使用淘宝闪购 `eleme://web` Scheme，并将渠道口令作为 `voiceQuery` 传入“AI点外卖”；该链路已通过 Android 和 HarmonyOS 真机验证。
+7. 淘宝闪购尝试 1.8 秒后页面仍可见时，显示对应系统的下载和重试入口。
 
 ### 7.4 微信浏览器处理
 
-微信内置浏览器对外部 App 跳转限制较多。页面会识别微信环境，并按当前目标提示用户使用系统浏览器打开淘宝或千问。
+微信内置浏览器对外部 App 跳转限制较多。页面会识别微信环境，并按当前目标提示用户使用系统浏览器打开淘宝、千问或淘宝闪购。
 
 ## 8. 数据埋点
 
@@ -175,6 +182,10 @@ lib/umeng.ts
 | `qianwen_fallback` | 千问未成功唤起并显示下载入口 |
 | `download_qianwen` | 用户点击下载千问 |
 | `retry_qianwen` | 用户重新尝试打开千问 |
+| `open_shangou` | 页面尝试打开淘宝闪购 AI 点外卖 |
+| `shangou_fallback` | 淘宝闪购未成功唤起并显示下载入口 |
+| `download_shangou` | 用户点击下载淘宝闪购 |
+| `retry_shangou` | 用户重新尝试打开淘宝闪购 |
 
 友盟点击事件：
 

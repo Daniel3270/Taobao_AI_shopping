@@ -10,6 +10,10 @@ export type TrackingEvent =
   | "qianwen_fallback"
   | "download_qianwen"
   | "retry_qianwen"
+  | "open_shangou"
+  | "shangou_fallback"
+  | "download_shangou"
+  | "retry_shangou"
   | "config_load_success"
   | "config_load_fail"
   | "invalid_scene";

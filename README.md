@@ -1,6 +1,6 @@
-# 金豆芽 AI 购物双链路中转页
+# 金豆芽 AI 购物三链路中转页
 
-移动端优先的 H5 活动页，用于承接二维码扫码流量。默认复制渠道购物口令并打开淘宝 AI 购物；所有渠道都可以通过 `target=qianwen` 改为打开千问 App。
+移动端优先的 H5 活动页，用于承接二维码扫码流量。默认复制渠道购物口令并打开淘宝 AI 购物；也可以通过 `target=qianwen` 打开千问 App，或通过 `target=shangou` 直达淘宝闪购 App 的“AI点外卖”。
 
 ## 本地启动
 
@@ -39,6 +39,8 @@ Logo、16:9 Hero 和产品组合图仍保留在配置里，后续如果需要做
 - 支持 `scene`、`channel`、`campaignId`、`storeId`、`sku`、`target` URL 参数
 - 不传 `target` 时默认复制口令并打开淘宝 App，失败后回退淘宝 H5
 - 任意渠道添加 `target=qianwen` 后会打开千问 App
+- 任意渠道添加 `target=shangou` 后会复制口令并尝试直达淘宝闪购“AI点外卖”
+- 淘宝闪购链路同时通过 `voiceQuery` 携带渠道口令，剪贴板保留为兼容兜底
 - 千问链路按 Android/iOS/鸿蒙选择 Scheme，唤起失败时显示下载与重试入口
 - 微信内置浏览器会显示“请用浏览器打开”指引
 - 页面隐藏提示词文本，但仍会正常复制 `promptText`
@@ -59,7 +61,7 @@ promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
 /tb-ai/?channel=kidswant
 ```
 
-## 双链路规则
+## 三链路规则
 
 淘宝渠道链接无需 `target`：
 
@@ -73,7 +75,13 @@ promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
 /tb-ai/?channel=huangshang&target=qianwen
 ```
 
-淘宝 App 与 H5 地址维护在 [lib/campaigns.ts](./lib/campaigns.ts) 的 `targetAppUrl`、`targetUrl`。千问链接维护在 [lib/qianwen.ts](./lib/qianwen.ts)。
+淘宝闪购“AI点外卖”链路示例：
+
+```text
+/tb-ai/?channel=huangshang&target=shangou
+```
+
+淘宝 App 与 H5 地址维护在 [lib/campaigns.ts](./lib/campaigns.ts) 的 `targetAppUrl`、`targetUrl`。千问链接维护在 [lib/qianwen.ts](./lib/qianwen.ts)，淘宝闪购“AI点外卖”的页面、Scheme 和下载地址维护在 [lib/shangou.ts](./lib/shangou.ts)。
 
 ## 修改千问链接
 

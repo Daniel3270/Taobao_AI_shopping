@@ -8,6 +8,12 @@ import {
   getQianwenDeepLink,
   getQianwenDownloadUrl,
 } from "../lib/qianwen";
+import {
+  SHANGOU_AI_CHAT_URL,
+  getShangouAiChatUrl,
+  getShangouDeepLink,
+  getShangouDownloadUrl,
+} from "../lib/shangou";
 import { getTrackingEndpoint } from "../lib/tracking";
 
 const originalTrackingEndpoint = process.env.NEXT_PUBLIC_TRACKING_ENDPOINT;
@@ -83,6 +89,7 @@ describe("getPromptTextForChannel", () => {
     ["changshen", "帮我用淘宝闪购在长申超市买一提金豆芽金银花柚子汁100ml"],
     ["dazhangshengdemei", "帮我用淘宝闪购在大张盛德美买一提金豆芽金银花柚子汁100ml"],
     ["jiajiali", "帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml"],
+    ["jiajiayue", "帮我用淘宝闪购在家家悦买一提金豆芽金银花柚子汁"],
     ["jiarong", "帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁"],
     ["miaoduoke", "帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml"],
     ["ouya", "帮我用淘宝闪购在欧亚超市买一提金豆芽金银花柚子汁"],
@@ -144,6 +151,11 @@ describe("购物目标路由", () => {
     expect(getShoppingTarget({ channel: "kidswant", target: "qianwen" })).toBe("qianwen");
     expect(getShoppingTarget({ channel: "yinzuo", target: "qianwen" })).toBe("qianwen");
   });
+
+  it("所有渠道都可以使用淘宝闪购链路", () => {
+    expect(getShoppingTarget({ channel: "huangshang", target: "shangou" })).toBe("shangou");
+    expect(getShoppingTarget({ channel: "kidswant", target: "shangou" })).toBe("shangou");
+  });
 });
 
 describe("千问 App 跳转", () => {
@@ -163,5 +175,35 @@ describe("千问 App 跳转", () => {
     expect(getQianwenDownloadUrl("ios")).toContain("apps.apple.com");
     expect(getQianwenDownloadUrl("android")).toContain("appdownload.alicdn.com");
     expect(getQianwenDownloadUrl("harmony")).toContain("download-guide");
+  });
+});
+
+describe("淘宝闪购 AI 点外卖跳转", () => {
+  const promptText = "帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁";
+
+  it("将渠道提示词写入 AI 点外卖 voiceQuery", () => {
+    const chatUrl = new URL(getShangouAiChatUrl(promptText));
+
+    expect(`${chatUrl.origin}${chatUrl.pathname}`).toBe(
+      new URL(SHANGOU_AI_CHAT_URL).origin + new URL(SHANGOU_AI_CHAT_URL).pathname,
+    );
+    expect(chatUrl.searchParams.get("voiceQuery")).toBe(promptText);
+  });
+
+  it("生成淘宝闪购外部唤端 Scheme", () => {
+    const deepLink = new URL(getShangouDeepLink(promptText));
+
+    expect(deepLink.protocol).toBe("eleme:");
+    expect(deepLink.hostname).toBe("web");
+    expect(deepLink.searchParams.get("packageName")).toBe("me.ele");
+    expect(new URL(deepLink.searchParams.get("url") || "").searchParams.get("voiceQuery")).toBe(
+      promptText,
+    );
+  });
+
+  it("按平台返回淘宝闪购官方下载地址", () => {
+    expect(getShangouDownloadUrl("ios")).toContain("apps.apple.com");
+    expect(getShangouDownloadUrl("android")).toContain("appdownload.alicdn.com");
+    expect(getShangouDownloadUrl("harmony")).toContain("links.ele.me");
   });
 });

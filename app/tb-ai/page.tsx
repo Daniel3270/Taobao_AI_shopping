@@ -26,6 +26,11 @@ import {
   getQianwenDeepLink,
   getQianwenDownloadUrl,
 } from "@/lib/qianwen";
+import {
+  SHANGOU_OPEN_FALLBACK_DELAY_MS,
+  getShangouDeepLink,
+  getShangouDownloadUrl,
+} from "@/lib/shangou";
 import { trackEvent } from "@/lib/tracking";
 import { recordAplusClick, sendManualPageView } from "@/lib/umeng";
 
@@ -76,8 +81,11 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [campaignQuery.channel, config.promptText]);
   const shoppingTarget = getShoppingTarget(campaignQuery);
   const isQianwenTarget = shoppingTarget === "qianwen";
+  const isShangouTarget = shoppingTarget === "shangou";
+  const targetAppName = isQianwenTarget ? "千问" : isShangouTarget ? "淘宝闪购" : "淘宝";
   const isBlockedInWeChat = isWeChat;
   const qianwenDownloadUrl = getQianwenDownloadUrl(platform);
+  const shangouDownloadUrl = getShangouDownloadUrl(platform);
   const fallbackMessage =
     campaignResult.meta.invalidScene || campaignResult.meta.fallback
       ? "活动信息加载异常，已使用默认配置。"
@@ -191,7 +199,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     };
   }, []);
 
-  const copyPrompt = useCallback(async (destination?: "淘宝" | "千问") => {
+  const copyPrompt = useCallback(async (destination?: "淘宝" | "千问" | "淘宝闪购") => {
     const success = await copyText(promptText);
     if (success) {
       setToast({
@@ -223,6 +231,24 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     }, QIANWEN_OPEN_FALLBACK_DELAY_MS);
   }, [platform, qianwenDownloadUrl, track]);
 
+  const openShangou = useCallback(() => {
+    const deepLink = getShangouDeepLink(promptText);
+    pageLeftAfterOpenAttempt.current = false;
+    setShowInstallGuide(false);
+    track("open_shangou", { platform, deepLink });
+    window.location.href = deepLink;
+
+    window.setTimeout(() => {
+      if (!pageLeftAfterOpenAttempt.current && document.visibilityState === "visible") {
+        setShowInstallGuide(true);
+        track("shangou_fallback", {
+          platform,
+          downloadUrl: shangouDownloadUrl,
+        });
+      }
+    }, SHANGOU_OPEN_FALLBACK_DELAY_MS);
+  }, [platform, promptText, shangouDownloadUrl, track]);
+
   const handleCopyOnly = useCallback(async () => {
     recordAplusClick("click_copy_only", umengTrackingParams);
     track("copy_click", { mode: "copy_only" });
@@ -233,11 +259,16 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const handleCopyAndOpen = useCallback(async () => {
     recordAplusClick("click_copy_and_open", umengTrackingParams);
     track("copy_click", { mode: "copy_and_open" });
-    const success = await copyPrompt(isQianwenTarget ? "千问" : "淘宝");
+    const success = await copyPrompt(targetAppName);
     track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
 
     if (isQianwenTarget) {
       window.setTimeout(openQianwen, success ? 300 : 600);
+      return;
+    }
+
+    if (isShangouTarget) {
+      window.setTimeout(openShangou, success ? 300 : 600);
       return;
     }
 
@@ -267,9 +298,12 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     config.targetUrl,
     copyPrompt,
     isQianwenTarget,
+    isShangouTarget,
     isTaobao,
     openQianwen,
+    openShangou,
     promptText,
+    targetAppName,
     track,
     umengTrackingParams,
   ]);
@@ -285,12 +319,23 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     track("download_qianwen", { platform, downloadUrl: qianwenDownloadUrl });
   }, [platform, qianwenDownloadUrl, track, umengTrackingParams]);
 
+  const handleRetryShangou = useCallback(() => {
+    recordAplusClick("click_retry_open_shangou", umengTrackingParams);
+    track("retry_shangou", { platform });
+    openShangou();
+  }, [openShangou, platform, track, umengTrackingParams]);
+
+  const handleDownloadShangou = useCallback(() => {
+    recordAplusClick("click_download_shangou", umengTrackingParams);
+    track("download_shangou", { platform, downloadUrl: shangouDownloadUrl });
+  }, [platform, shangouDownloadUrl, track, umengTrackingParams]);
+
   return (
     <main className="relative mx-auto min-h-dvh w-full max-w-[430px] bg-[#dff3f6] text-brand-ink">
       <div className="relative aspect-[941/1672] min-h-dvh w-full overflow-hidden">
         <img
           src={config.posterImage}
-          alt={`${config.brandName}${isQianwenTarget ? "千问" : "淘宝"} AI 购物活动`}
+          alt={`${config.brandName}${targetAppName} AI 购物活动`}
           className="absolute inset-0 h-full w-full select-none object-cover"
         />
 
@@ -318,6 +363,8 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
                     ? "请用浏览器打开"
                     : isQianwenTarget
                       ? "复制口令并打开千问"
+                      : isShangouTarget
+                        ? "复制口令并打开淘宝闪购"
                       : isTaobao
                         ? "复制购物口令"
                         : config.buttonText}
@@ -364,18 +411,18 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
             <p className="text-2xl font-bold">点右上角</p>
             <p className="mt-2 text-lg font-semibold text-brand-green">在浏览器打开</p>
             <p className="mt-3 text-sm leading-6 text-brand-ink/65">
-              微信内无法稳定打开{isQianwenTarget ? "千问" : "淘宝"}，请使用系统浏览器继续操作。
+              微信内无法稳定打开{targetAppName}，请使用系统浏览器继续操作。
             </p>
           </div>
         </section>
       ) : null}
 
-      {showInstallGuide && isQianwenTarget && !isBlockedInWeChat ? (
+      {showInstallGuide && (isQianwenTarget || isShangouTarget) && !isBlockedInWeChat ? (
         <section
           className="fixed inset-0 z-50 mx-auto flex max-w-[430px] items-end bg-black/35 px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] backdrop-blur-[2px]"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="qianwen-install-title"
+          aria-labelledby="target-app-install-title"
         >
           <div className="relative w-full rounded-lg bg-white px-5 pb-5 pt-6 text-brand-ink shadow-[0_20px_60px_rgba(20,48,34,0.3)]">
             <button
@@ -387,31 +434,31 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
               <X className="h-5 w-5" aria-hidden="true" />
             </button>
 
-            <h2 id="qianwen-install-title" className="pr-10 text-xl font-bold">
-              没有打开千问？
+            <h2 id="target-app-install-title" className="pr-10 text-xl font-bold">
+              没有打开{targetAppName}？
             </h2>
             <p className="mt-2 text-sm leading-6 text-brand-ink/65">
-              你的手机可能还没有安装千问 App。口令已经复制，安装完成后回到本页重新打开即可。
+              你的手机可能还没有安装{targetAppName} App。口令已经复制，安装完成后回到本页重新打开即可。
             </p>
 
             <div className="mt-5 grid gap-2.5">
               <a
-                href={qianwenDownloadUrl}
+                href={isQianwenTarget ? qianwenDownloadUrl : shangouDownloadUrl}
                 target="_blank"
                 rel="noreferrer"
-                onClick={handleDownloadQianwen}
+                onClick={isQianwenTarget ? handleDownloadQianwen : handleDownloadShangou}
                 className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-brand-green px-4 text-base font-bold text-white shadow-soft active:scale-[0.99]"
               >
                 <Download className="h-5 w-5" aria-hidden="true" />
-                <span>下载千问 App</span>
+                <span>下载{targetAppName} App</span>
               </a>
               <button
                 type="button"
-                onClick={handleRetryQianwen}
+                onClick={isQianwenTarget ? handleRetryQianwen : handleRetryShangou}
                 className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-brand-green/25 bg-white px-4 text-sm font-semibold text-brand-green active:scale-[0.99]"
               >
                 <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                <span>我已安装，重新打开千问</span>
+                <span>我已安装，重新打开{targetAppName}</span>
               </button>
             </div>
           </div>

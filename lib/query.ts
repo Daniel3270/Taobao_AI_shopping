@@ -29,10 +29,14 @@ function normalizeCampaignQueryValue(key: keyof CampaignQuery, value: string) {
   return trimmedValue;
 }
 
-export type ShoppingTarget = "taobao" | "qianwen";
+export type ShoppingTarget = "taobao" | "qianwen" | "shangou";
 
 export function getShoppingTarget(query: CampaignQuery): ShoppingTarget {
-  return query.target === "qianwen" ? "qianwen" : "taobao";
+  if (query.target === "qianwen" || query.target === "shangou") {
+    return query.target;
+  }
+
+  return "taobao";
 }
 
 export function getCampaignQuery(searchParams: URLSearchParams): CampaignQuery {
