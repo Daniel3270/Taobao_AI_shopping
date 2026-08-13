@@ -2,7 +2,6 @@ import { afterEach, describe, expect, it } from "vitest";
 import { getCampaignConfig, getPromptTextForChannel, loadCampaignConfig } from "../lib/campaigns";
 import { getCampaignQuery, getShoppingTarget } from "../lib/query";
 import {
-  QIANWEN_DEEP_LINK,
   QIANWEN_HARMONY_DEEP_LINK,
   getDevicePlatform,
   getQianwenDeepLink,
@@ -166,11 +165,38 @@ describe("千问 App 跳转", () => {
     expect(getDevicePlatform("Mozilla/5.0 (Linux; OpenHarmony 5.0)")).toBe("harmony");
   });
 
-  it("鸿蒙使用首页 Scheme，其他平台使用通用 Scheme", () => {
-    expect(getQianwenDeepLink("harmony")).toBe(QIANWEN_HARMONY_DEEP_LINK);
-    expect(getQianwenDeepLink("android")).toBe(QIANWEN_DEEP_LINK);
-    expect(getQianwenDeepLink("ios")).toBe(QIANWEN_DEEP_LINK);
+  it("所有移动平台都通过 App Scheme 拉起千问", () => {
+    expect(getQianwenDeepLink("harmony")).toContain(QIANWEN_HARMONY_DEEP_LINK);
+    expect(getQianwenDeepLink("android")).toContain(QIANWEN_HARMONY_DEEP_LINK);
+    expect(getQianwenDeepLink("ios")).toContain(QIANWEN_HARMONY_DEEP_LINK);
   });
+
+  it.each(["android", "harmony", "ios"] as const)(
+    "%s 通过 Scheme 携带生活帮手场景并自动发送渠道提示词",
+    (platform) => {
+    const prompt = "帮我用淘宝闪购在黄商超市买一提金豆芽金银花柚子汁";
+      const appSchemeUrl = new URL(getQianwenDeepLink(platform, prompt));
+      const url = new URL(appSchemeUrl.searchParams.get("url") || "");
+      const qkParams = JSON.parse(url.searchParams.get("qk_params") || "{}");
+
+      expect(appSchemeUrl.protocol).toBe("tongyi:");
+      expect(appSchemeUrl.hostname).toBe("page");
+      expect(appSchemeUrl.pathname).toBe("/h5");
+      expect(url.origin).toBe("https://u.qianwen.com");
+      expect(url.searchParams.get("qk_biz")).toBe("ai_qwen");
+      expect(url.searchParams.get("qk_module")).toBe("home");
+      expect(url.searchParams.get("entry")).toBe("life_assistant");
+      expect(qkParams).toEqual({
+        query: prompt,
+        query_info: {
+          direct_send: "true",
+          biz_data: {
+            contextScene: "qwen_banshi",
+          },
+        },
+      });
+    },
+  );
 
   it("按平台返回对应下载地址", () => {
     expect(getQianwenDownloadUrl("ios")).toContain("apps.apple.com");

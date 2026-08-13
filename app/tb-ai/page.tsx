@@ -206,7 +206,12 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     if (success) {
       setToast({
         type: "success",
-        text: destination ? `口令已复制，即将打开${destination}。` : "口令已复制。",
+        text:
+          destination === "千问"
+            ? "即将打开千问并自动发送，口令已备份。"
+            : destination
+              ? `口令已复制，即将打开${destination}。`
+              : "口令已复制。",
       });
       return true;
     }
@@ -216,7 +221,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [promptText]);
 
   const openQianwen = useCallback(() => {
-    const deepLink = getQianwenDeepLink(platform);
+    const deepLink = getQianwenDeepLink(platform, promptText);
     pageLeftAfterOpenAttempt.current = false;
     setShowInstallGuide(false);
     track("open_qianwen", { platform, deepLink });
@@ -231,7 +236,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
         });
       }
     }, QIANWEN_OPEN_FALLBACK_DELAY_MS);
-  }, [platform, qianwenDownloadUrl, track]);
+  }, [platform, promptText, qianwenDownloadUrl, track]);
 
   const openShangou = useCallback(() => {
     const deepLink = getShangouDeepLink(promptText);
@@ -261,13 +266,17 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const handleCopyAndOpen = useCallback(async () => {
     recordAplusClick("click_copy_and_open", umengTrackingParams);
     track("copy_click", { mode: "copy_and_open" });
-    const success = await copyPrompt(targetAppName);
-    track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
+    const copyPromise = copyPrompt(targetAppName);
 
     if (isQianwenTarget) {
-      window.setTimeout(openQianwen, success ? 300 : 600);
+      openQianwen();
+      const success = await copyPromise;
+      track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
       return;
     }
+
+    const success = await copyPromise;
+    track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
 
     if (isShangouTarget) {
       window.setTimeout(openShangou, success ? 300 : 600);
@@ -364,7 +373,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
                   {isBlockedInWeChat
                     ? "请用浏览器打开"
                     : isQianwenTarget
-                      ? "复制口令并打开千问"
+                      ? "打开千问并自动发送"
                       : isShangouTarget
                         ? "复制口令并打开淘宝闪购"
                       : isTaobao

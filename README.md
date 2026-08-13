@@ -38,10 +38,10 @@ Logo、16:9 Hero 和产品组合图仍保留在配置里，后续如果需要做
 - 活动页路径：`/tb-ai/`
 - 支持 `scene`、`channel`、`campaignId`、`storeId`、`sku`、`target` URL 参数
 - 不传 `target` 时默认复制口令并打开淘宝 App，失败后回退淘宝 H5
-- 任意渠道添加 `target=qianwen` 后会打开千问 App
+- 任意渠道添加 `target=qianwen` 后会通过千问官方“生活帮手”链接打开千问，并自动发送渠道口令、调用淘宝闪购服务
 - 任意渠道添加 `target=shangou` 后会复制口令并尝试直达淘宝闪购“AI点外卖”
 - 淘宝闪购链路会移除口令中的“淘宝闪购/闪购”平台前缀，再通过 `voiceQuery` 携带渠道口令，剪贴板保留为兼容兜底
-- 千问链路按 Android/iOS/鸿蒙选择 Scheme，唤起失败时显示下载与重试入口
+- 千问链路使用 `qk_params` 携带 `contextScene=qwen_banshi` 和 `direct_send=true`；所有移动平台都通过 `tongyi://page/h5` 直接拉起 App，剪贴板保留为兼容兜底
 - 微信内置浏览器会显示“请用浏览器打开”指引
 - 页面隐藏提示词文本，但仍会正常复制 `promptText`
 - 友盟 A+ 埋点已接入
@@ -85,12 +85,15 @@ promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
 
 ## 修改千问链接
 
-编辑 [lib/qianwen.ts](./lib/qianwen.ts)，可修改千问 App Scheme：
+编辑 [lib/qianwen.ts](./lib/qianwen.ts)，可修改千问 App 链接：
 
 ```ts
-QIANWEN_DEEP_LINK = "tongyi://page/h5?...";
-QIANWEN_HARMONY_DEEP_LINK = "tongyi://?source_type=scheme";
+QIANWEN_DEEP_LINK =
+  "https://u.qianwen.com/?qk_biz=ai_qwen&qk_module=home&entry=life_assistant";
+QIANWEN_HARMONY_DEEP_LINK = "tongyi://page/h5";
 ```
+
+页面会将当前渠道口令写入 `qk_params.query`，并携带“生活帮手”场景和自动发送参数。页面会在用户点击时直接通过 Scheme 拉起千问，再由千问内部打开完整的生活帮手链接。
 
 以及 iOS、Android 和通用下载地址：
 
