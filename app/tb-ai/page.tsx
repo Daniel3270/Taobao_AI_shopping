@@ -40,6 +40,8 @@ type ToastState = {
   text: string;
 };
 
+type ShangouOpenSource = "auto" | "primary_button" | "install_retry";
+
 function isWeChatBrowser() {
   if (typeof navigator === "undefined") {
     return false;
@@ -63,6 +65,8 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const [platform, setPlatform] = useState<DevicePlatform>("unknown");
   const [showInstallGuide, setShowInstallGuide] = useState(false);
   const pageLeftAfterOpenAttempt = useRef(false);
+  const shangouAutoOpenAttempted = useRef(false);
+  const shangouFallbackTimer = useRef<number | null>(null);
 
   const campaignQuery = useMemo(() => {
     return getCampaignQuery(new URLSearchParams(searchParamsString));
@@ -238,23 +242,49 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     }, QIANWEN_OPEN_FALLBACK_DELAY_MS);
   }, [platform, promptText, qianwenDownloadUrl, track]);
 
-  const openShangou = useCallback(() => {
+  const openShangou = useCallback((source: ShangouOpenSource = "primary_button") => {
     const deepLink = getShangouDeepLink(promptText);
+    if (shangouFallbackTimer.current !== null) {
+      window.clearTimeout(shangouFallbackTimer.current);
+    }
     pageLeftAfterOpenAttempt.current = false;
     setShowInstallGuide(false);
-    track("open_shangou", { platform, deepLink });
+    track("open_shangou", { platform, deepLink, source });
     window.location.href = deepLink;
 
-    window.setTimeout(() => {
+    shangouFallbackTimer.current = window.setTimeout(() => {
+      shangouFallbackTimer.current = null;
       if (!pageLeftAfterOpenAttempt.current && document.visibilityState === "visible") {
         setShowInstallGuide(true);
         track("shangou_fallback", {
           platform,
           downloadUrl: shangouDownloadUrl,
+          source,
         });
       }
     }, SHANGOU_OPEN_FALLBACK_DELAY_MS);
   }, [platform, promptText, shangouDownloadUrl, track]);
+
+  useEffect(() => {
+    if (!isShangouTarget || isWeChatBrowser() || shangouAutoOpenAttempted.current) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      shangouAutoOpenAttempted.current = true;
+      openShangou("auto");
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [isShangouTarget, openShangou]);
+
+  useEffect(() => {
+    return () => {
+      if (shangouFallbackTimer.current !== null) {
+        window.clearTimeout(shangouFallbackTimer.current);
+      }
+    };
+  }, []);
 
   const handleCopyOnly = useCallback(async () => {
     recordAplusClick("click_copy_only", umengTrackingParams);
@@ -279,7 +309,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     track(success ? "copy_success" : "copy_fail", { mode: "copy_and_open" });
 
     if (isShangouTarget) {
-      window.setTimeout(openShangou, success ? 300 : 600);
+      window.setTimeout(() => openShangou("primary_button"), success ? 300 : 600);
       return;
     }
 
@@ -333,7 +363,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const handleRetryShangou = useCallback(() => {
     recordAplusClick("click_retry_open_shangou", umengTrackingParams);
     track("retry_shangou", { platform });
-    openShangou();
+    openShangou("install_retry");
   }, [openShangou, platform, track, umengTrackingParams]);
 
   const handleDownloadShangou = useCallback(() => {
@@ -375,7 +405,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
                     : isQianwenTarget
                       ? "打开千问并自动发送"
                       : isShangouTarget
-                        ? "复制口令并打开淘宝闪购"
+                        ? "重新打开淘宝闪购"
                       : isTaobao
                         ? "复制购物口令"
                         : config.buttonText}
