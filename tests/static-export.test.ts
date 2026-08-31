@@ -95,6 +95,8 @@ describe("getPromptTextForChannel", () => {
     ["ouya", "帮我用淘宝闪购在欧亚超市买一提金豆芽金银花柚子汁"],
     ["yasi", "帮我用淘宝闪购在雅斯超市买一提金豆芽金银花柚子汁复合果汁饮品100ml"],
     ["huayubaijia", "帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml"],
+    ["xianfengshenghuo", "帮我用淘宝闪购在鲜风生活超市买一提金豆芽金银花柚子汁"],
+    ["gaojimeirui", "帮我用淘宝闪购在高济美锐药房买一提金豆芽金银花柚子汁"],
     ["xingqin", "帮我用淘宝闪购在兴勤超市买一提金豆芽金银花柚子汁"],
     ["rtmart", "帮我用淘宝闪购在大润发买一提金豆芽金银花柚子汁"],
   ])("uses the %s prompt for channel placements", (channel, promptText) => {

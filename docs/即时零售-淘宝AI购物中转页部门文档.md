@@ -182,7 +182,7 @@ lib/umeng.ts
 | `qianwen_fallback` | 千问未成功唤起并显示下载入口 |
 | `download_qianwen` | 用户点击下载千问 |
 | `retry_qianwen` | 用户重新尝试打开千问 |
-| `open_shangou` | 页面尝试打开淘宝闪购 AI 点外卖 |
+| `open_shangou` | 页面尝试打开淘宝闪购 AI 点外卖，`source` 区分自动和手动来源 |
 | `shangou_fallback` | 淘宝闪购未成功唤起并显示下载入口 |
 | `download_shangou` | 用户点击下载淘宝闪购 |
 | `retry_shangou` | 用户重新尝试打开淘宝闪购 |
@@ -191,8 +191,10 @@ lib/umeng.ts
 
 | 事件码 | 说明 |
 | --- | --- |
-| `click_copy_and_open` | 点击复制口令并打开当前目标 App |
+| `click_copy_and_open` | 淘宝和千问链路表示主按钮点击；淘宝闪购链路表示页面进入后台、推断跳转成功 |
 | `click_copy_only` | 点击“仅复制口令” |
+
+为兼容现有统计看板，淘宝闪购自动链路继续使用 `click_copy_and_open`。只有页面因唤醒操作进入后台时才上报；打开失败并进入下载兜底时不上报。该成功是根据页面可见性变化推断，不代表用户已完成下单。
 
 ### 8.3 渠道统计口径
 
@@ -207,6 +209,8 @@ lib/umeng.ts
 | `biz_channel` | 投放渠道 |
 | `storeId` | 门店 |
 | `sku` | 商品 |
+| `platform` | 设备平台 |
+| `source` | `auto`、`primary_button` 或 `install_retry` |
 
 ### 8.4 可选外部埋点
 

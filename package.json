@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "experiment:qianwen-direct": "node scripts/qianwen-direct-server.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

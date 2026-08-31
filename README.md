@@ -142,6 +142,8 @@ http://localhost:3000/tb-ai/?scene=juice02
 
 友盟相关配置在 [lib/umeng.ts](./lib/umeng.ts)。
 
+淘宝闪购自动唤醒链路继续使用友盟事件 `click_copy_and_open`：页面因唤醒操作进入后台时上报，并携带 `biz_channel`、`platform` 和 `source`。因此该事件在淘宝闪购链路中表示推断跳转成功，而不是单纯的按钮点击。
+
 如果设置 `NEXT_PUBLIC_TRACKING_ENDPOINT`，页面还会把事件发送到该外部地址；如果不设置，则只使用友盟埋点。
 
 ## 构建

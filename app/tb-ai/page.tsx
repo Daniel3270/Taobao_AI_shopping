@@ -67,6 +67,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const pageLeftAfterOpenAttempt = useRef(false);
   const shangouAutoOpenAttempted = useRef(false);
   const shangouFallbackTimer = useRef<number | null>(null);
+  const activeShangouOpenSource = useRef<ShangouOpenSource | null>(null);
 
   const campaignQuery = useMemo(() => {
     return getCampaignQuery(new URLSearchParams(searchParamsString));
@@ -187,23 +188,41 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [toast]);
 
   useEffect(() => {
+    const markPageLeft = () => {
+      pageLeftAfterOpenAttempt.current = true;
+
+      const source = activeShangouOpenSource.current;
+      if (!source) {
+        return;
+      }
+
+      activeShangouOpenSource.current = null;
+      if (shangouFallbackTimer.current !== null) {
+        window.clearTimeout(shangouFallbackTimer.current);
+        shangouFallbackTimer.current = null;
+      }
+
+      recordAplusClick("click_copy_and_open", {
+        ...umengTrackingParams,
+        platform,
+        source,
+      });
+    };
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === "hidden") {
-        pageLeftAfterOpenAttempt.current = true;
+        markPageLeft();
       }
-    };
-    const handlePageHide = () => {
-      pageLeftAfterOpenAttempt.current = true;
     };
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("pagehide", markPageLeft);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("pagehide", markPageLeft);
     };
-  }, []);
+  }, [platform, umengTrackingParams]);
 
   const copyPrompt = useCallback(async (destination?: "淘宝" | "千问" | "淘宝闪购") => {
     const success = await copyText(promptText);
@@ -248,6 +267,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
       window.clearTimeout(shangouFallbackTimer.current);
     }
     pageLeftAfterOpenAttempt.current = false;
+    activeShangouOpenSource.current = source;
     setShowInstallGuide(false);
     track("open_shangou", { platform, deepLink, source });
     window.location.href = deepLink;
@@ -255,6 +275,7 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
     shangouFallbackTimer.current = window.setTimeout(() => {
       shangouFallbackTimer.current = null;
       if (!pageLeftAfterOpenAttempt.current && document.visibilityState === "visible") {
+        activeShangouOpenSource.current = null;
         setShowInstallGuide(true);
         track("shangou_fallback", {
           platform,
@@ -294,7 +315,9 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   }, [copyPrompt, track, umengTrackingParams]);
 
   const handleCopyAndOpen = useCallback(async () => {
-    recordAplusClick("click_copy_and_open", umengTrackingParams);
+    if (!isShangouTarget) {
+      recordAplusClick("click_copy_and_open", umengTrackingParams);
+    }
     track("copy_click", { mode: "copy_and_open" });
     const copyPromise = copyPrompt(targetAppName);
 

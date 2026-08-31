@@ -39,18 +39,20 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
 | `tb-ai-jiarong-*-qr.png` | 嘉荣 | `帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁` |
 | `tb-ai-kidswant-*-qr.png` | 孩子王 | `用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml` |
 | `tb-ai-huayubaijia-*-qr.png` | 华豫佰佳超市 | `帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml` |
+| `tb-ai-gaojimeirui-*-qr.png` | 高济美锐药房 | `帮我用淘宝闪购在高济美锐药房买一提金豆芽金银花柚子汁` |
 | `tb-ai-metro-*-qr.png` | 麦德龙 | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
 | `tb-ai-miaoduoke-*-qr.png` | 妙多客超市 | `帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml` |
 | `tb-ai-ouya-*-qr.png` | 欧亚超市 | `帮我用淘宝闪购在欧亚超市买一提金豆芽金银花柚子汁` |
 | `tb-ai-rtmart-*-qr.png` | 大润发 | `帮我用淘宝闪购在大润发买一提金豆芽金银花柚子汁` |
 | `tb-ai-xingqin-*-qr.png` | 兴勤超市 | `帮我用淘宝闪购在兴勤超市买一提金豆芽金银花柚子汁` |
+| `tb-ai-xianfengshenghuo-*-qr.png` | 鲜风生活超市 | `帮我用淘宝闪购在鲜风生活超市买一提金豆芽金银花柚子汁` |
 | `tb-ai-yasi-*-qr.png` | 雅斯超市 | `帮我用淘宝闪购在雅斯超市买一提金豆芽金银花柚子汁复合果汁饮品100ml` |
 | `tb-ai-yingbeier-*-qr.png` | 婴贝儿 | `帮我用闪购在婴贝儿（领秀城贵和店）购买金豆芽金银花柚子汁宝宝饮品礼盒` |
 | `tb-ai-yinzuo-*-qr.png` | 银座超市 | `用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml` |
 
 ## 千问链路
 
-千问链路支持上表中的全部渠道，URL 需要同时传入对应的 `channel` 和 `target=qianwen`。正式与测试目录各有 17 张二维码，渠道提示词与淘宝链路共用同一份配置。
+千问链路支持上表中的全部渠道，URL 需要同时传入对应的 `channel` 和 `target=qianwen`。正式与测试目录各有 19 张二维码，渠道提示词与淘宝链路共用同一份配置。
 
 | 环境 | 文件命名 | URL 示例 |
 | --- | --- | --- |
@@ -59,7 +61,7 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
 
 ## 淘宝闪购 AI 点外卖链路
 
-淘宝闪购链路使用 `target=shangou`，支持上表中的全部渠道。正式与测试目录各有 17 张二维码，渠道提示词与淘宝、千问链路共用同一份配置。
+淘宝闪购链路使用 `target=shangou`，支持上表中的全部渠道。正式与测试目录各有 19 张二维码，渠道提示词与淘宝、千问链路共用同一份配置。
 
 | 环境 | 文件命名 | URL 示例 |
 | --- | --- | --- |
