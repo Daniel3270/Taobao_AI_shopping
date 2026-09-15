@@ -86,9 +86,13 @@ function TaobaoAiCampaignPageContent({ searchParamsString }: { searchParamsStrin
   const isQianwenTarget = shoppingTarget === "qianwen";
   const isShangouTarget = shoppingTarget === "shangou";
   const promptText = useMemo(() => {
-    const channelPromptText = getPromptTextForChannel(campaignQuery.channel, config.promptText);
+    const channelPromptText = getPromptTextForChannel(
+      campaignQuery.channel,
+      config.promptText,
+      campaignQuery.storeId,
+    );
     return isShangouTarget ? getShangouPromptText(channelPromptText) : channelPromptText;
-  }, [campaignQuery.channel, config.promptText, isShangouTarget]);
+  }, [campaignQuery.channel, campaignQuery.storeId, config.promptText, isShangouTarget]);
   const targetAppName = isQianwenTarget ? "千问" : isShangouTarget ? "淘宝闪购" : "淘宝";
   const isBlockedInWeChat = isWeChat;
   const qianwenDownloadUrl = getQianwenDownloadUrl(platform);

@@ -37,9 +37,13 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
 | `tb-ai-jiajiali-*-qr.png` | 家家利超市 | `帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml` |
 | `tb-ai-jiajiayue-*-qr.png` | 家家悦 | `帮我用淘宝闪购在家家悦买一提金豆芽金银花柚子汁` |
 | `tb-ai-jiarong-*-qr.png` | 嘉荣 | `帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁` |
+| `tb-ai-lejiachaohui-*-qr.png` | 乐家超惠生鲜超市 | `帮我用淘宝闪购在乐家超惠生鲜超市买一提金豆芽金银花柚子汁` |
 | `tb-ai-kidswant-*-qr.png` | 孩子王 | `用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml` |
 | `tb-ai-huayubaijia-*-qr.png` | 华豫佰佳超市 | `帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml` |
-| `tb-ai-gaojimeirui-*-qr.png` | 高济美锐药房 | `帮我用淘宝闪购在高济美锐药房买一提金豆芽金银花柚子汁` |
+| `tb-ai-gaojimeirui-pingxilu-*-qr.png` | 美锐大药房（平西路店） | `帮我用淘宝闪购在美锐大药房（平西路店）买一盒金豆芽水乐檬电解质饮品` |
+| `tb-ai-gaojimeirui-xiyaheme-*-qr.png` | 美锐健康城（西亚和美店） | `帮我用淘宝闪购在美锐健康城西亚和美店买一盒金豆芽水乐檬电解质饮品` |
+| `tb-ai-gaojimeirui-yiyaodalou-*-qr.png` | 同和堂大药店(医药大楼店) | `帮我用淘宝闪购在同和堂大药店(医药大楼店)买一盒金豆芽水乐檬电解质饮品` |
+| `tb-ai-gaojimeirui-baijiahaoyisheng-*-qr.png` | 百家好一生医药健康城 | `帮我用淘宝闪购在百家好一生医药健康城买一盒金豆芽水乐檬电解质饮品` |
 | `tb-ai-metro-*-qr.png` | 麦德龙 | `用闪购帮我在麦德龙购买金豆芽金银花柚子汁` |
 | `tb-ai-miaoduoke-*-qr.png` | 妙多客超市 | `帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml` |
 | `tb-ai-ouya-*-qr.png` | 欧亚超市 | `帮我用淘宝闪购在欧亚超市买一提金豆芽金银花柚子汁` |
@@ -52,7 +56,7 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
 
 ## 千问链路
 
-千问链路支持上表中的全部渠道，URL 需要同时传入对应的 `channel` 和 `target=qianwen`。正式与测试目录各有 19 张二维码，渠道提示词与淘宝链路共用同一份配置。
+千问链路支持上表中的全部投放项，URL 需要同时传入对应的 `channel` 和 `target=qianwen`。正式与测试目录各有 23 张当前投放二维码，渠道与门店提示词和淘宝链路共用同一份配置。
 
 | 环境 | 文件命名 | URL 示例 |
 | --- | --- | --- |
@@ -61,7 +65,7 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
 
 ## 淘宝闪购 AI 点外卖链路
 
-淘宝闪购链路使用 `target=shangou`，支持上表中的全部渠道。正式与测试目录各有 19 张二维码，渠道提示词与淘宝、千问链路共用同一份配置。
+淘宝闪购链路使用 `target=shangou`，支持上表中的全部投放项。正式与测试目录各有 23 张当前投放二维码，渠道与门店提示词和淘宝、千问链路共用同一份配置。
 
 | 环境 | 文件命名 | URL 示例 |
 | --- | --- | --- |
@@ -70,7 +74,11 @@ https://jdyqwen.zirancuishipin.com/tb-ai/?channel=huangshang
 
 该链路会先移除渠道口令中的“淘宝闪购/闪购”平台前缀并复制自然语句，再通过淘宝闪购 `eleme://web` Scheme 打开“AI点外卖”页面，并将同一条口令作为 `voiceQuery` 携带。外部深链已通过 Android 和 HarmonyOS 真机验证，iOS 正式投放前仍需单独验证。
 
+原 `tb-ai-gaojimeirui-*-qr.png` 渠道级二维码已删除。高济美锐物料必须使用带门店 `storeId` 的四张门店二维码。
+
 ## 友盟统计口径
 
 - `biz_channel` 区分渠道。
+- 高济美锐四家门店的 `biz_channel` 均为 `gaojimeirui`，在友盟中汇总为同一渠道。
+- `storeId` 区分同一渠道下的具体门店：`pingxilu`、`xiyaheme`、`yiyaodalou`、`baijiahaoyisheng`。
 - `target` 区分实际执行的 `taobao`、`qianwen` 或 `shangou` 链路。

@@ -59,9 +59,10 @@ const channelPromptTexts: Record<string, string> = {
   jiajiali: "帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml",
   jiajiayue: "帮我用淘宝闪购在家家悦买一提金豆芽金银花柚子汁",
   jiarong: "帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁",
+  lejiachaohui: "帮我用淘宝闪购在乐家超惠生鲜超市买一提金豆芽金银花柚子汁",
   kidswant: "用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml",
   huayubaijia: "帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml",
-  gaojimeirui: "帮我用淘宝闪购在高济美锐药房买一提金豆芽金银花柚子汁",
+  gaojimeirui: "帮我用淘宝闪购在高济美锐大药房买一盒金豆芽水乐檬电解质饮品",
   metro: "用闪购帮我在麦德龙购买金豆芽金银花柚子汁",
   miaoduoke: "帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml",
   ouya: "帮我用淘宝闪购在欧亚超市买一提金豆芽金银花柚子汁",
@@ -73,8 +74,29 @@ const channelPromptTexts: Record<string, string> = {
   yinzuo: "用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml",
 };
 
-export function getPromptTextForChannel(channel: string | undefined, fallbackPromptText: string) {
+const storePromptTexts: Record<string, Record<string, string>> = {
+  gaojimeirui: {
+    pingxilu: "帮我用淘宝闪购在美锐大药房（平西路店）买一盒金豆芽水乐檬电解质饮品",
+    xiyaheme: "帮我用淘宝闪购在美锐健康城西亚和美店买一盒金豆芽水乐檬电解质饮品",
+    yiyaodalou: "帮我用淘宝闪购在同和堂大药店(医药大楼店)买一盒金豆芽水乐檬电解质饮品",
+    baijiahaoyisheng: "帮我用淘宝闪购在百家好一生医药健康城买一盒金豆芽水乐檬电解质饮品",
+  },
+};
+
+export function getPromptTextForChannel(
+  channel: string | undefined,
+  fallbackPromptText: string,
+  storeId?: string,
+) {
   const normalizedChannel = channel?.trim().toLowerCase();
+  const normalizedStoreId = storeId?.trim().toLowerCase();
+
+  if (normalizedChannel && normalizedStoreId) {
+    const storePromptText = storePromptTexts[normalizedChannel]?.[normalizedStoreId];
+    if (storePromptText) {
+      return storePromptText;
+    }
+  }
 
   return (normalizedChannel && channelPromptTexts[normalizedChannel]) || fallbackPromptText;
 }

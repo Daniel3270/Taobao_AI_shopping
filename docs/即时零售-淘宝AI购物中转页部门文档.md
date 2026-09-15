@@ -130,7 +130,9 @@ lib/campaigns.ts
 
 ### 7.2 渠道口令匹配
 
-渠道口令通过 `channelPromptTexts` 维护。页面读取 URL 中的 `channel` 参数后，会优先使用渠道专属口令；没有匹配到渠道时，使用默认 `promptText`。
+渠道口令通过 `channelPromptTexts` 维护。同一渠道下需要按门店区分名称时，通过 `storePromptTexts` 维护门店口令。页面读取 URL 中的 `channel` 和 `storeId` 后，依次使用门店专属口令、渠道专属口令和默认 `promptText`。
+
+高济美锐药房使用两级归因：四家门店的 `channel` 均为 `gaojimeirui`，因此友盟中的 `biz_channel` 会汇总到同一渠道；`storeId` 分别使用 `pingxilu`、`xiyaheme`、`yiyaodalou`、`baijiahaoyisheng`，用于选择门店提示词和查看单店数据。
 
 ### 7.3 三链路跳转
 

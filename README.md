@@ -61,6 +61,12 @@ promptText: "帮我在淘宝闪购买一提金豆芽金银花柚子汁",
 /tb-ai/?channel=kidswant
 ```
 
+同一渠道下有多个门店且门店名称需要进入口令时，可同时传入 `storeId`。页面会优先匹配门店口令，友盟仍使用 `channel` 汇总渠道，并通过 `storeId` 保留单店维度：
+
+```text
+/tb-ai/?channel=gaojimeirui&storeId=pingxilu&target=qianwen
+```
+
 ## 三链路规则
 
 淘宝渠道链接无需 `target`：

@@ -91,12 +91,13 @@ describe("getPromptTextForChannel", () => {
     ["jiajiali", "帮我用淘宝闪购在家家利超市买一提金豆芽金银花柚子果汁饮料100ml"],
     ["jiajiayue", "帮我用淘宝闪购在家家悦买一提金豆芽金银花柚子汁"],
     ["jiarong", "帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁"],
+    ["lejiachaohui", "帮我用淘宝闪购在乐家超惠生鲜超市买一提金豆芽金银花柚子汁"],
     ["miaoduoke", "帮我用淘宝闪购在妙多客超市买一提金豆芽金银花柚子汁100ml"],
     ["ouya", "帮我用淘宝闪购在欧亚超市买一提金豆芽金银花柚子汁"],
     ["yasi", "帮我用淘宝闪购在雅斯超市买一提金豆芽金银花柚子汁复合果汁饮品100ml"],
     ["huayubaijia", "帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml"],
     ["xianfengshenghuo", "帮我用淘宝闪购在鲜风生活超市买一提金豆芽金银花柚子汁"],
-    ["gaojimeirui", "帮我用淘宝闪购在高济美锐药房买一提金豆芽金银花柚子汁"],
+    ["gaojimeirui", "帮我用淘宝闪购在高济美锐大药房买一盒金豆芽水乐檬电解质饮品"],
     ["xingqin", "帮我用淘宝闪购在兴勤超市买一提金豆芽金银花柚子汁"],
     ["rtmart", "帮我用淘宝闪购在大润发买一提金豆芽金银花柚子汁"],
   ])("uses the %s prompt for channel placements", (channel, promptText) => {
@@ -120,6 +121,21 @@ describe("getPromptTextForChannel", () => {
       "用闪购帮我在银座买金豆芽金银花苹果汁礼盒装100ml",
     );
   });
+
+  it.each([
+    ["pingxilu", "帮我用淘宝闪购在美锐大药房（平西路店）买一盒金豆芽水乐檬电解质饮品"],
+    ["xiyaheme", "帮我用淘宝闪购在美锐健康城西亚和美店买一盒金豆芽水乐檬电解质饮品"],
+    ["yiyaodalou", "帮我用淘宝闪购在同和堂大药店(医药大楼店)买一盒金豆芽水乐檬电解质饮品"],
+    ["baijiahaoyisheng", "帮我用淘宝闪购在百家好一生医药健康城买一盒金豆芽水乐檬电解质饮品"],
+  ])("uses the Gaoji Meirui %s store prompt", (storeId, promptText) => {
+    expect(getPromptTextForChannel("gaojimeirui", defaultPromptText, storeId)).toBe(promptText);
+  });
+
+  it("falls back to the Gaoji Meirui channel prompt for an unknown store", () => {
+    expect(getPromptTextForChannel("gaojimeirui", defaultPromptText, "unknown-store")).toBe(
+      "帮我用淘宝闪购在高济美锐大药房买一盒金豆芽水乐檬电解质饮品",
+    );
+  });
 });
 
 describe("getCampaignQuery", () => {
@@ -131,13 +147,13 @@ describe("getCampaignQuery", () => {
   it("trims tracked query values", () => {
     const query = getCampaignQuery(
       new URLSearchParams(
-        "scene= juice01 &campaignId= tb-ai-juice-2026 &storeId= 001 &target= Qianwen ",
+        "scene= juice01 &campaignId= tb-ai-juice-2026 &storeId= PingXiLu &target= Qianwen ",
       ),
     );
     expect(query).toMatchObject({
       scene: "juice01",
       campaignId: "tb-ai-juice-2026",
-      storeId: "001",
+      storeId: "pingxilu",
       target: "qianwen",
     });
   });
@@ -151,12 +167,14 @@ describe("购物目标路由", () => {
   it("所有渠道都可以使用千问链路", () => {
     expect(getShoppingTarget({ channel: "huangshang", target: "qianwen" })).toBe("qianwen");
     expect(getShoppingTarget({ channel: "kidswant", target: "qianwen" })).toBe("qianwen");
+    expect(getShoppingTarget({ channel: "lejiachaohui", target: "qianwen" })).toBe("qianwen");
     expect(getShoppingTarget({ channel: "yinzuo", target: "qianwen" })).toBe("qianwen");
   });
 
   it("所有渠道都可以使用淘宝闪购链路", () => {
     expect(getShoppingTarget({ channel: "huangshang", target: "shangou" })).toBe("shangou");
     expect(getShoppingTarget({ channel: "kidswant", target: "shangou" })).toBe("shangou");
+    expect(getShoppingTarget({ channel: "lejiachaohui", target: "shangou" })).toBe("shangou");
   });
 });
 

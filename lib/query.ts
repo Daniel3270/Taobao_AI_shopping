@@ -22,7 +22,7 @@ function normalizeCampaignQueryValue(key: keyof CampaignQuery, value: string) {
     return null;
   }
 
-  if (key === "channel" || key === "target") {
+  if (key === "channel" || key === "storeId" || key === "target") {
     return trimmedValue.toLowerCase();
   }
 
