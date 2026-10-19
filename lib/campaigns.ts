@@ -60,6 +60,7 @@ const channelPromptTexts: Record<string, string> = {
   jiajiayue: "帮我用淘宝闪购在家家悦买一提金豆芽金银花柚子汁",
   jiarong: "帮我用淘宝闪购在嘉荣买一提金豆芽金银花柚子汁",
   lejiachaohui: "帮我用淘宝闪购在乐家超惠生鲜超市买一提金豆芽金银花柚子汁",
+  lida: "帮我用淘宝闪购在丽达超市买一提金豆芽金银花柚子汁",
   kidswant: "用闪购帮我在孩子王购买金豆芽金银花柚子汁礼盒装100ml",
   huayubaijia: "帮我用淘宝闪购在华豫佰佳超市买一提金豆芽金银花柚子汁100ml",
   gaojimeirui: "帮我用淘宝闪购在高济美锐大药房买一盒金豆芽水乐檬电解质饮品",
